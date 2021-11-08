@@ -110,9 +110,12 @@ server <- function(input, output, session) {
       num <- (input$LSPE11 - input$LIPE11 + 1) + (input$LSPE22 - input$LIPE22 + 1)
       ACUM_VOL[,"St Des"] <- sd(ACUM_VOL[1:num,"Mean"])
       # result <- shapiro.test(ACUM_VOL[1:nrow(ACUM_VOL),"Mean"])
-      result <- ks.test(ACUM_VOL[1:nrow(ACUM_VOL),"Mean"], pnorm,
-                        mean(ACUM_VOL[1:nrow(ACUM_VOL),"Mean"]),
-                        sd(ACUM_VOL[1:nrow(ACUM_VOL),"Mean"]))
+      # result <- ks.test(ACUM_VOL[1:nrow(ACUM_VOL),"Mean"], pnorm,
+      #                   mean(ACUM_VOL[1:nrow(ACUM_VOL),"Mean"]),
+      #                   sd(ACUM_VOL[1:nrow(ACUM_VOL),"Mean"]))
+      result <- ks.test(ACUM_VOL[1:num,"Mean"], pnorm,
+                        mean(ACUM_VOL[1:num,"Mean"]),
+                        sd(ACUM_VOL[1:num,"Mean"]))
       ACUM_VOL[,"Normal"] <- ifelse(result$p.value > 0.05, "NORMAL", "NO NORMAL")
       ACUM_VOL[,"p-value"] <- result$p.value
       if (ACUM_VOL[1 ,"Normal"] == "NORMAL") {
@@ -162,13 +165,13 @@ server <- function(input, output, session) {
       ACUM_RENT[,"St Des"] <- sd(ACUM_RENT[1:num,"Mean"])
       
       # result <- shapiro.test(ACUM_RENT[1:nrow(ACUM_RENT),"Mean"])
-      result <- ks.test(ACUM_RENT[1:nrow(ACUM_RENT),"Mean"], pnorm,
-                        mean(ACUM_RENT[1:nrow(ACUM_RENT),"Mean"]),
-                        sd(ACUM_RENT[1:nrow(ACUM_RENT),"Mean"]))
+      result <- ks.test(ACUM_RENT[1:num,"Mean"], pnorm,
+                        mean(ACUM_RENT[1:num,"Mean"]),
+                        sd(ACUM_RENT[1:num,"Mean"]))
       # resultVol <- shapiro.test(vol2[,"mean - average"])
-      resultVol <- ks.test(vol2[,"mean - average"], pnorm,
-                        mean(vol2[,"mean - average"]),
-                        sd(vol2[,"mean - average"]))
+      resultVol <- ks.test(vol2[1:num,"mean - average"], pnorm,
+                        mean(vol2[1:num,"mean - average"]),
+                        sd(vol2[1:num,"mean - average"]))
       vol2[,"Normal"] <- ifelse(resultVol$p.value > 0.05, "NORMAL", "NO NORMAL")
       ACUM_RENT[,"Normal"] <- ifelse(result$p.value > 0.05, "NORMAL", "NO NORMAL")
       vol2[,"p-value"] <- resultVol$p.value
@@ -214,13 +217,13 @@ server <- function(input, output, session) {
       vol3[,"mean - average"] <- vol3[,"mean"] - vol3[,"Average"]
       ACUM_3F[,"St Des"] <- sd(ACUM_3F[1:num,"Mean"])
       # result <- shapiro.test(ACUM_3F[1:nrow(ACUM_3F),"Mean"])
-      result <- ks.test(ACUM_3F[1:nrow(ACUM_3F),"Mean"], pnorm,
-                           mean(ACUM_3F[1:nrow(ACUM_3F),"Mean"]),
-                           sd(ACUM_3F[1:nrow(ACUM_3F),"Mean"]))
+      result <- ks.test(ACUM_3F[1:num,"Mean"], pnorm,
+                           mean(ACUM_3F[1:num,"Mean"]),
+                           sd(ACUM_3F[1:num,"Mean"]))
       # resultVol <- shapiro.test(vol3[,"mean - average"])
-      resultVol <- ks.test(vol3[,"mean - average"], pnorm,
-                           mean(vol3[,"mean - average"]),
-                           sd(vol3[,"mean - average"]))
+      resultVol <- ks.test(vol3[1:num,"mean - average"], pnorm,
+                           mean(vol3[1:num,"mean - average"]),
+                           sd(vol3[1:num,"mean - average"]))
       vol3[,"Normal"] <- ifelse(resultVol$p.value > 0.05, "NORMAL", "NO NORMAL")
       ACUM_3F[,"Normal"] <- ifelse(result$p.value > 0.05, "NORMAL", "NO NORMAL")
       vol3[,"p-value"] <- resultVol$p.value
@@ -267,13 +270,13 @@ server <- function(input, output, session) {
       vol4[,"mean - average"] <- vol4[,"mean"] - vol4[,"Average"]
       ACUM_4F[,"St Des"] <- sd(ACUM_4F[1:num,"Mean"])
       # result <- shapiro.test(ACUM_4F[1:nrow(ACUM_4F),"Mean"])
-      result <- ks.test(ACUM_4F[1:nrow(ACUM_4F),"Mean"], pnorm,
-                           mean(ACUM_4F[1:nrow(ACUM_4F),"Mean"]),
-                           sd(ACUM_4F[1:nrow(ACUM_4F),"Mean"]))
+      result <- ks.test(ACUM_4F[1:num,"Mean"], pnorm,
+                           mean(ACUM_4F[1:num,"Mean"]),
+                           sd(ACUM_4F[1:num,"Mean"]))
       # resultVol <- shapiro.test(vol4[,"mean - average"])
-      resultVol <- ks.test(vol4[,"mean - average"], pnorm,
-                           mean(vol4[,"mean - average"]),
-                           sd(vol4[,"mean - average"]))
+      resultVol <- ks.test(vol4[1:num,"mean - average"], pnorm,
+                           mean(vol4[1:num,"mean - average"]),
+                           sd(vol4[1:num,"mean - average"]))
       vol4[,"Normal"] <- ifelse(resultVol$p.value > 0.05, "NORMAL", "NO NORMAL")
       ACUM_4F[,"Normal"] <- ifelse(result$p.value > 0.05, "NORMAL", "NO NORMAL")
       vol4[,"p-value"] <- resultVol$p.value
@@ -348,13 +351,14 @@ server <- function(input, output, session) {
       vol5[,"mean - average"] <- vol5[,"mean"] - vol5[,"Average"]
       ACUM_5F[,"St Des"] <- sd(ACUM_5F[1:num,"Mean"])
       # result <- shapiro.test(ACUM_5F[1:nrow(ACUM_5F),"Mean"])
-      result <- ks.test(ACUM_5F[1:nrow(ACUM_5F),"Mean"], pnorm,
-                           mean(ACUM_5F[1:nrow(ACUM_5F),"Mean"]),
-                           sd(ACUM_5F[1:nrow(ACUM_5F),"Mean"]))
+      result <- ks.test(ACUM_5F[1:num,"Mean"], "pnorm",
+                           mean(ACUM_5F[1:num,"Mean"]),
+                           sd(ACUM_5F[1:num,"Mean"]), alternative = "gr")
+      RESULTATKS <<- result
       # resultVol <- shapiro.test(vol5[,"mean - average"])
-      resultVol <- ks.test(vol5[,"mean - average"], pnorm,
-                           mean(vol5[,"mean - average"]),
-                           sd(vol5[,"mean - average"]))
+      resultVol <- ks.test(vol5[1:num,"mean - average"], pnorm,
+                           mean(vol5[1:num,"mean - average"]),
+                           sd(vol5[1:num,"mean - average"]))
       vol5[,"Normal"] <- ifelse(resultVol$p.value > 0.05, "NORMAL", "NO NORMAL")
       ACUM_5F[,"Normal"] <- ifelse(result$p.value > 0.05, "NORMAL", "NO NORMAL")
       vol5[,"p-value"] <- resultVol$p.value
@@ -443,9 +447,9 @@ server <- function(input, output, session) {
       num <- (input$LSPE11G - input$LIPE11G + 1) + (input$LSPE22G - input$LIPE22G + 1)
       ACUM_VOL[,"St Des"] <- sd(ACUM_VOL[1:num,"Mean"])
       # result <- shapiro.test(ACUM_VOL[1:nrow(ACUM_VOL),"Mean"])
-      result <- ks.test(ACUM_VOL[1:nrow(ACUM_VOL),"Mean"], pnorm,
-                           mean(ACUM_VOL[1:nrow(ACUM_VOL),"Mean"]),
-                           sd(ACUM_VOL[1:nrow(ACUM_VOL),"Mean"]))
+      result <- ks.test(ACUM_VOL[1:num,"Mean"], pnorm,
+                           mean(ACUM_VOL[1:num,"Mean"]),
+                           sd(ACUM_VOL[1:num,"Mean"]))
       ACUM_VOL[,"Normal"] <- ifelse(result$p.value > 0.05, "NORMAL", "NO NORMAL")
       ACUM_VOL[,"p-value"] <- result$p.value
       if (ACUM_VOL[1 ,"Normal"] == "NORMAL") {
@@ -482,13 +486,13 @@ server <- function(input, output, session) {
       ACUM_RENT[,"St Des"] <- sd(ACUM_RENT[1:num,"Mean"])
       
       # result <- shapiro.test(ACUM_RENT[1:nrow(ACUM_RENT),"Mean"])
-      result <- ks.test(ACUM_RENT[1:nrow(ACUM_RENT),"Mean"], pnorm,
-                           mean(ACUM_RENT[1:nrow(ACUM_RENT),"Mean"]),
-                           sd(ACUM_RENT[1:nrow(ACUM_RENT),"Mean"]))
+      result <- ks.test(ACUM_RENT[1:num,"Mean"], pnorm,
+                           mean(ACUM_RENT[1:num,"Mean"]),
+                           sd(ACUM_RENT[1:num,"Mean"]))
       # resultVol <- shapiro.test(vol2[,"mean - average"])
-      resultVol <- ks.test(vol2[,"mean - average"], pnorm,
-                           mean(vol2[,"mean - average"]),
-                           sd(vol2[,"mean - average"]))
+      resultVol <- ks.test(vol2[1:num,"mean - average"], pnorm,
+                           mean(vol2[1:num,"mean - average"]),
+                           sd(vol2[1:num,"mean - average"]))
       vol2[,"Normal"] <- ifelse(resultVol$p.value > 0.05, "NORMAL", "NO NORMAL")
       ACUM_RENT[,"Normal"] <- ifelse(result$p.value > 0.05, "NORMAL", "NO NORMAL")
       vol2[,"p-value"] <- resultVol$p.value
@@ -533,13 +537,13 @@ server <- function(input, output, session) {
       vol3[,"mean - average"] <- vol3[,"mean"] - vol3[,"Average"]
       ACUM_3F[,"St Des"] <- sd(ACUM_3F[1:num,"Mean"])
       # result <- shapiro.test(ACUM_3F[1:nrow(ACUM_3F),"Mean"])
-      result <- ks.test(ACUM_3F[1:nrow(ACUM_3F),"Mean"], pnorm,
-                           mean(ACUM_3F[1:nrow(ACUM_3F),"Mean"]),
-                           sd(ACUM_3F[1:nrow(ACUM_3F),"Mean"]))
+      result <- ks.test(ACUM_3F[1:num,"Mean"], pnorm,
+                           mean(ACUM_3F[1:num,"Mean"]),
+                           sd(ACUM_3F[1:num,"Mean"]))
       # resultVol <- shapiro.test(vol3[,"mean - average"])
-      resultVol <- ks.test(vol3[,"mean - average"], pnorm,
-                           mean(vol3[,"mean - average"]),
-                           sd(vol3[,"mean - average"]))
+      resultVol <- ks.test(vol3[1:num,"mean - average"], pnorm,
+                           mean(vol3[1:num,"mean - average"]),
+                           sd(vol3[1:num,"mean - average"]))
       vol3[,"Normal"] <- ifelse(resultVol$p.value > 0.05, "NORMAL", "NO NORMAL")
       ACUM_3F[,"Normal"] <- ifelse(result$p.value > 0.05, "NORMAL", "NO NORMAL")
       vol3[,"p-value"] <- resultVol$p.value
@@ -583,13 +587,13 @@ server <- function(input, output, session) {
       vol4[,"mean - average"] <- vol4[,"mean"] - vol4[,"Average"]
       ACUM_4F[,"St Des"] <- sd(ACUM_4F[1:num,"Mean"])
       # result <- shapiro.test(ACUM_4F[1:nrow(ACUM_4F),"Mean"])
-      result <- ks.test(ACUM_4F[1:nrow(ACUM_4F),"Mean"], pnorm,
-                           mean(ACUM_4F[1:nrow(ACUM_4F),"Mean"]),
-                           sd(ACUM_4F[1:nrow(ACUM_4F),"Mean"]))
+      result <- ks.test(ACUM_4F[1:num,"Mean"], pnorm,
+                           mean(ACUM_4F[1:num,"Mean"]),
+                           sd(ACUM_4F[1:num,"Mean"]))
       # resultVol <- shapiro.test(vol4[,"mean - average"])
-      resultVol <- ks.test(vol4[,"mean - average"], pnorm,
-                           mean(vol4[,"mean - average"]),
-                           sd(vol4[,"mean - average"]))
+      resultVol <- ks.test(vol4[1:num,"mean - average"], pnorm,
+                           mean(vol4[1:num,"mean - average"]),
+                           sd(vol4[1:num,"mean - average"]))
       vol4[,"Normal"] <- ifelse(resultVol$p.value > 0.05, "NORMAL", "NO NORMAL")
       ACUM_4F[,"Normal"] <- ifelse(result$p.value > 0.05, "NORMAL", "NO NORMAL")
       vol4[,"p-value"] <- resultVol$p.value
@@ -634,13 +638,13 @@ server <- function(input, output, session) {
       vol5[,"mean - average"] <- vol5[,"mean"] - vol5[,"Average"]
       ACUM_5F[,"St Des"] <- sd(ACUM_5F[1:num,"Mean"])
       # result <- shapiro.test(ACUM_5F[1:nrow(ACUM_5F),"Mean"])
-      result <- ks.test(ACUM_5F[1:nrow(ACUM_5F),"Mean"], pnorm,
-                           mean(ACUM_5F[1:nrow(ACUM_5F),"Mean"]),
-                           sd(ACUM_5F[1:nrow(ACUM_5F),"Mean"]))
+      result <- ks.test(ACUM_5F[1:num,"Mean"], pnorm,
+                           mean(ACUM_5F[1:num,"Mean"]),
+                           sd(ACUM_5F[1:num,"Mean"]))
       # resultVol <- shapiro.test(vol5[,"mean - average"])
-      resultVol <- ks.test(vol5[,"mean - average"], pnorm,
-                           mean(vol5[,"mean - average"]),
-                           sd(vol5[,"mean - average"]))
+      resultVol <- ks.test(vol5[1:num,"mean - average"], pnorm,
+                           mean(vol5[1:num,"mean - average"]),
+                           sd(vol5[1:num,"mean - average"]))
       vol5[,"Normal"] <- ifelse(resultVol$p.value > 0.05, "NORMAL", "NO NORMAL")
       ACUM_5F[,"Normal"] <- ifelse(result$p.value > 0.05, "NORMAL", "NO NORMAL")
       vol5[,"p-value"] <- resultVol$p.value
