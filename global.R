@@ -2,10 +2,10 @@
 #         java.parameters = "-Xmx8000m")
 
 # pckgs<-c("tidyverse", "shiny", "shinyFiles", "shinythemes", "xlsx",
-#          "ggthemes", "ggplotify","xlsxjars")
+#          "ggthemes", "ggplotify","xlsxjars","nortest")
 
 pckgs<-c("tidyverse", "shiny", "shinyFiles", "shinythemes","writexl",
-         "ggthemes", "ggplotify")
+         "ggthemes", "ggplotify", "nortest")
 
 pckgs2Install<-pckgs[!(pckgs %in% library()$results[,1])]
 pckgs2Load<-pckgs[!(pckgs %in% (.packages()))]
