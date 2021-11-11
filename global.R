@@ -14,5 +14,5 @@ for(pckg in pckgs2Install) {
                    quiet=TRUE, type="binary")}
 for(pckg in pckgs2Load) {library(pckg,character.only = TRUE)}
 
-source('MERCADO_Y_VOLUMEN.R')
-source("TODOS_FACTORES_20210907.R")
+source('functionsMarketVolumes.R')
+source("functionsAbnormalReturns.R")
