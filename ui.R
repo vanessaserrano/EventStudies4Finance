@@ -187,8 +187,6 @@ ui <- fluidPage(
         font-family: 'Lobster', cursive;
         }"),
       tabsetPanel(
-        tabPanel('Installation',
-                 htmlOutput("text1")),
         tabPanel('Instructions',
                  htmlOutput("text2")),
         tabPanel('Console',

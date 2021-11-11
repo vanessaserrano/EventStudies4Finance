@@ -861,22 +861,6 @@ server <- function(input, output, session) {
     },
     contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
   )
-  output$text1 <- renderText({
-    
-      '
-      <br/>
-      Please follow the next steps when using the app:<br/><br/>
-      - Install the last version of Java<br/>
-      - Install the following R packages (install.packages("package")):<br/>
-      <br/>
-      &emsp;&emsp;- tidyverse<br/>
-      &emsp;&emsp;- shinyFiles<br/>
-      &emsp;&emsp;- shinythemes<br/>
-      &emsp;&emsp;- xlsx<br/>
-      <br/>
-      In order to use the this tool, an external browser is to be used (Run App --> External Run)
-    '
-  })
   output$text2 <- renderText({
     
     '
