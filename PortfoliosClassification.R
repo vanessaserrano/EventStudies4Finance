@@ -58,8 +58,10 @@ df1$HighLow <- factor(df1$HighLow, ordered = TRUE, levels = c("LOW", "MEDIUM", "
 set.seed(42)
 
 gg1 <- ggplot(df1, aes(x=SmallBig, y=HighLow, color = HighLow, label=Ticker)) +
-  geom_text_repel(size=3, segment.color = 'transparent', max.overlaps=15) + 
+  geom_text_repel(size=3, segment.color = 'transparent', max.overlaps=15,
+                  position=position_jitter(height = 0.2, width=0.2)) + 
   scale_colour_manual(values=c("red", "blue", "darkgreen")) +
+  labs(y="High-Low") +
   theme_bw() + theme(legend.position="none", axis.text.x = element_blank(), axis.title.x = element_blank()) 
 
 df2<-df[!is.na(df$SmallBig) & !is.na(df$RobustWeak),]
@@ -68,8 +70,10 @@ df2$RobustWeak <- factor(df2$RobustWeak, ordered = TRUE, levels = c("WEAK", "MED
 set.seed(42)
 
 gg2 <- ggplot(df2, aes(x=SmallBig, y=RobustWeak, color = RobustWeak, label=Ticker)) +
-  geom_text_repel(size=3, segment.color = 'transparent', max.overlaps=15) + 
+  geom_text_repel(size=3, segment.color = 'transparent', max.overlaps=15,
+                  position=position_jitter(height = 0.2, width=0.2)) +
   scale_colour_manual(values=c("red", "blue", "darkgreen")) +
+  labs(y="Robust-Weak") +
   theme_bw() + theme(legend.position="none", axis.text.x = element_blank(), axis.title.x = element_blank()) 
 
 df3<-df[!is.na(df$SmallBig) & !is.na(df$ConservativeAggressive),]
@@ -78,8 +82,10 @@ df3$ConservativeAggressive <- factor(df3$ConservativeAggressive, ordered = TRUE,
 set.seed(42)
 
 gg3 <- ggplot(df3, aes(x=SmallBig, y=ConservativeAggressive, color = ConservativeAggressive, label=Ticker)) +
-  geom_text_repel(size=3, segment.color = 'transparent', max.overlaps=15) + 
+  geom_text_repel(size=3, segment.color = 'transparent', max.overlaps=15,
+                  position=position_jitter(height = 0.2, width=0.2)) +
   scale_colour_manual(values=c("red", "blue", "darkgreen")) +
+  labs(y="Conservative-Aggressive", x="Small-Big") +
   theme_bw() + theme(legend.position="none") 
 
 ggarrange(gg1, gg2, gg3, 
