@@ -867,24 +867,59 @@ server <- function(input, output, session) {
     <br/>
     In order to properly execute the analysis, we need to follow the steps listed below:<br/>
     <br/>
-    &emsp;&emsp;- Open the 4 files required for the analysis:<br/>
+    - Open the 4 files required for the analysis:<br/>
     <br/>
-    &emsp;&emsp;&emsp;&emsp;- Event Data file<br/>
-    &emsp;&emsp;&emsp;&emsp;- Sample Data file<br/>
-    &emsp;&emsp;&emsp;&emsp;- Market Data file<br/>
-    &emsp;&emsp;&emsp;&emsp;- Risk Free file<br/>
+    &emsp;> Event Data file<br/>
+    &emsp;> Sample Data file<br/>
+    &emsp;> Market Data file<br/>
+    &emsp;> Risk Free file<br/>
     <br/>
-    &emsp;&emsp;- Each folder needs to be open in its required location<br/>
-    &emsp;&emsp;- Select the stocks sample folder<br/>
-    &emsp;&emsp;- Select the analysis to be undertaken and adjust its parameters<br/>
-    &emsp;&emsp;- Once the parameters are set, the system will automatically calculate the number of trading days to be taken into account<br/>
-    &emsp;&emsp;- <b>Before proceeding with the results, we need to check for confounding effects. You can check for them in Analysis</b><br/>
-    &emsp;&emsp;- Once the data have been analyzed, you may download the results as an Excel file<br/>
-    &emsp;&emsp;- Data frames are then available for further analysis in R or R Studio<br/>
+    - Each folder needs to be open in its required location<br/>
+    - Select the stocks sample folder<br/>
+    - Select the analysis to be undertaken and adjust its parameters<br/>
+    - Once the parameters are set, the system will automatically calculate the number of trading days to be taken into account<br/>
+    - Before proceeding with the results, we need to check for confounding effects. You can check for them in Analysis<br/>
+    - Once the data have been analyzed, you may download the results as an Excel file<br/>
+    - Data frames are then available for further analysis in R or R Studio<br/>
     '
   })
   
   output$text3 <- renderText({
+    
+    '
+    <br/>
+    Event Data: 3 columns separated by tabulations<br/>
+    &emsp;> Company name<br/>
+    &emsp;> Date of the event (dd/mm/YY format)<br/>
+    &emsp;> Market (stock) where it happens<br/>
+    <br/>   
+    Sample data: 14 columns separated by tabulations<br/>
+    &emsp;> Company name<br/>
+    &emsp;> Ticker (stock code) of the company<br/>
+    &emsp;> Market (stock) where the event takes place<br/>
+    &emsp;> Year when it happens (YY format)<br/>
+    &emsp;> Starting price (t-1) of the company<br/>
+    &emsp;> Closing price (t-1) of the company<br/>
+    &emsp;> Market capitalization (t-1) of the company<br/> 
+    &emsp;> Toal Equity (t-1) of the company<br/>
+    &emsp;> Revenues (t-1) of the company<br/>
+    &emsp;> Costs of Goods Sold (COGS) (t-1) of the company<br/>
+    &emsp;> Selling, General and Administrative Expenses (SG&A) (t-1) of the company<br/>
+    &emsp;> Interest expenses (t-1) of the company<br/>
+    &emsp;> Assets (t-1) of the company<br/>
+    &emsp;> Assets (t-2) of the company<br/>
+    <br/>
+    Market Data: 2 columns separated by tabulations<br/>
+    &emsp;> Date (list of days in a period of time where the event is included, dd/mm/YY format)<br/>
+    &emsp;> Stock value in each day<br/>
+    <br/>
+    Risk Free: 2 columns separated by tabulations<br/>
+    &emsp;> Date (list of days in a period of time where the event is included, dd/mm/YY format)<br/>
+    &emsp;> Risk Free Rate of the stock in each day<br/>
+    '
+  })
+  
+  output$text4 <- renderText({
     console()
   })
   

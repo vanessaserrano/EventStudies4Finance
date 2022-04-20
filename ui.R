@@ -166,7 +166,7 @@ ui <- fluidPage(
         "#text1 {
         @import url('//fonts.googleapis.com/css?family=Lobster|Cabin:400,700');
         
-        font-size:20px;
+        font-size:15px;
         color:back;
         font-family: 'Lobster', cursive;
         }"),
@@ -174,7 +174,7 @@ ui <- fluidPage(
         "#text2 {
         @import url('//fonts.googleapis.com/css?family=Lobster|Cabin:400,700');
         
-        font-size:20px;
+        font-size:15px;
         color:back;
         font-family: 'Lobster', cursive;
         }"),
@@ -182,15 +182,25 @@ ui <- fluidPage(
         "#text3 {
         @import url('//fonts.googleapis.com/css?family=Lobster|Cabin:400,700');
         
-        font-size:20px;
+        font-size:15px;
+        color:back;
+        font-family: 'Lobster', cursive;
+        }"),
+      tags$style(
+        "#text4 {
+        @import url('//fonts.googleapis.com/css?family=Lobster|Cabin:400,700');
+        
+        font-size:15px;
         color:back;
         font-family: 'Lobster', cursive;
         }"),
       tabsetPanel(
         tabPanel('Instructions',
                  htmlOutput("text2")),
+        tabPanel('Files format and dates',
+                 htmlOutput("text3")),
         tabPanel('Console',
-                 verbatimTextOutput("text3"))
+                 verbatimTextOutput("text4"))
     )
     )
   )
