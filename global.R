@@ -14,5 +14,5 @@ for(pckg in pckgs2Install) {
                    quiet=TRUE, type="binary")}
 for(pckg in pckgs2Load) {library(pckg,character.only = TRUE)}
 
-source('functionsMarketVolumes.R')
+source("functionsMarketVolumes.R")
 source("functionsAbnormalReturns.R")

@@ -882,8 +882,8 @@ CALCULO_MATRIZKPI <- function (MARKET, COMPANY, fecha_evento, inicio, fin,
                                directorio){
   #Valores estables: valores de un mercado de bajo riesgo, por ejemplo letras del tesoro
   #mercado: mercado donde cotiza la EMPRESA
-  # datos <- read.table(datos_mercados, comment.char="",na.strings="#N/A N/A",sep="\t",quote="",header=T,dec=",")
-  datos <- read.table(datos_mercados, comment.char="",na.strings="#N/A",sep="\t",quote="",header=T,dec=",")
+  # datos <- read.table(datos_mercados, comment.char="",na.strings=c("#N/A","N/A"),sep="\t",quote="",header=T,dec=",")
+  datos <- read.table(datos_mercados, comment.char="",na.strings=c("#N/A","N/A"),sep="\t",quote="",header=T,dec=",")
   
   dia1 = as.Date(inicio,format='%d/%m/%Y')
   dia2 = as.Date(fin, format='%d/%m/%Y')

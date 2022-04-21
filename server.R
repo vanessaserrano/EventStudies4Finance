@@ -901,7 +901,7 @@ server <- function(input, output, session) {
     &emsp;> Starting price (t-1) of the company<br/>
     &emsp;> Closing price (t-1) of the company<br/>
     &emsp;> Market capitalization (t-1) of the company<br/> 
-    &emsp;> Toal Equity (t-1) of the company<br/>
+    &emsp;> Total Equity (t-1) of the company<br/>
     &emsp;> Revenues (t-1) of the company<br/>
     &emsp;> Costs of Goods Sold (COGS) (t-1) of the company<br/>
     &emsp;> Selling, General and Administrative Expenses (SG&A) (t-1) of the company<br/>
@@ -911,11 +911,16 @@ server <- function(input, output, session) {
     <br/>
     Market Data: 2 columns separated by tabulations<br/>
     &emsp;> Date (list of days in a period of time where the event is included, dd/mm/YY format)<br/>
-    &emsp;> Stock value in each day<br/>
+    &emsp;> Index value in each day<br/>
     <br/>
     Risk Free: 2 columns separated by tabulations<br/>
     &emsp;> Date (list of days in a period of time where the event is included, dd/mm/YY format)<br/>
     &emsp;> Risk Free Rate of the stock in each day<br/>
+    <br/>
+    Stocks sample files: 3 columns separated by tabulations<br/>
+    &emsp;> Date (list of days in a period of time where the event is included, dd/mm/YY format)<br/>
+    &emsp;> Stock closing value per day<br/>
+    &emsp;> Number of stocks traded per day<br/>
     '
   })
   
