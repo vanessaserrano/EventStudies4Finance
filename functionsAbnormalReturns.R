@@ -11,7 +11,7 @@ rentabilidadEmpresa <- function(nombreEmpresa, directorio){
 rentabilidadMercado <- function(archivoDatosMercado, columna){ #Calcula la rentabilidad de una columna dada y devuelve dos columnas: Fecha y Rentabilidad
   #archivoDatosMercado="datos_mercados.txt"
   #columna="IGBM"
-  datos <-read.table(archivoDatosMercado, na.strings=c("#N/A","N/A"),sep="\t",quote="",header=T,dec=",")
+  datos <-read.table(archivoDatosMercado, na.strings=c("#N/A","N/A","NULL"),sep="\t",quote="",header=T,dec=",")
   #Elimino los valores que son NA
   datos <- datos[!is.na(datos[,eval(columna)]),]
   datos$Date <- as.Date(datos$Date, format="%d/%m/%Y")
@@ -24,11 +24,11 @@ comprobacionesFactores <- function (documentoEventos,
                                     datos_muestra="datos_muestra.txt",
                                     datos_mercados="datos_mercados.txt"){
   setwd(directorioDatos)
-  DATOS_EVENTOS <- read.table(documentoEventos,sep="\t",header=T,comment.char="",na.strings=c("#N/A","N/A"),quote="",stringsAsFactors = FALSE,dec=",")
+  DATOS_EVENTOS <- read.table(documentoEventos,sep="\t",header=T,comment.char="",na.strings=c("#N/A","N/A","NULL"),quote="",stringsAsFactors = FALSE,dec=",")
   DATOS_MUESTRA <- read.table(datos_muestra,sep="\t",header=T,comment.char="",na.strings="-",quote="",stringsAsFactors = FALSE,dec=",")
   colnames(DATOS_MUESTRA) <- c("COMPANY","TICKER","MARKET",'YEAR',"STARTING_PRICE_YEAR(t-1)","CLOSING_PRICE_YEAR(t-1)","MARKET_CAP(t-1)",
                                "TOTAL_EQUITY(t-1)","REVENUES(t-1)","COGS(t-1)","SG&A(t-1)","INTEREST_EXPENSE(t-1)","ASSETS(t-1)","ASSETS(t-2)")
-  DATOS_MERCADOS <- read.table(datos_mercados,sep="\t",header=T,comment.char="",na.strings=c("#N/A","N/A"),quote="",stringsAsFactors = FALSE,dec=",")
+  DATOS_MERCADOS <- read.table(datos_mercados,sep="\t",header=T,comment.char="",na.strings=c("#N/A","N/A","NULL"),quote="",stringsAsFactors = FALSE,dec=",")
   EMPRESAS_DIRECTORIO <- data.frame(EMPRESAS = unique(list.files(directorioDatos,pattern = ".txt")))
   RESULTADO <- data.frame(EMPRESA=unique(DATOS_EVENTOS$COMPANY), EN_DATOS_MUESTRA=NA, EN_DIRECTORIO =NA)
   
@@ -66,7 +66,7 @@ analisisRentabilidad <- function(datos,datos_mercados="datos_mercados.txt", form
   ##CARGA DE DATOS DE MERCADO -----------------------------------------------------------------------------------
   #Lectura de datos del mercado
   
-  datos_todos_mercados <- read.table(datos_mercados,comment.char="",na.strings=c("#N/A","N/A"),sep="\t",quote="",header=T,dec=",")
+  datos_todos_mercados <- read.table(datos_mercados,comment.char="",na.strings=c("#N/A","N/A","NULL"),sep="\t",quote="",header=T,dec=",")
   #Con este for se pretende limpiar los datos de cada columna de mercado y crear un objeto R para cada mercado
   #df_inter es una variable intermedia que vamos pisando para coger cada mercado y al final de cada iteracion la asignamos a un objeto R con el nombre del mercado
   #El objetivo es tener diferentes objetos de R creados en diferentes iteraciones con los datos de cada mercado, para ser mas eficientes y no ir reevaluando el 
@@ -90,7 +90,7 @@ analisisRentabilidad <- function(datos,datos_mercados="datos_mercados.txt", form
   rm(datos_todos_mercados)#Elimino el objeto de datos_todos_mercados ya que tengo todos los mercados cargados en diferentes objetos
   
   ##CARGA DE DATOS DE EVENTOS Y EMPRESAS ------------------------------------------------------------------------------------
-  datos <- read.table(datos,sep="\t",header=T,comment.char="",na.strings=c("#N/A","N/A"),quote="",stringsAsFactors = FALSE,dec=",")
+  datos <- read.table(datos,sep="\t",header=T,comment.char="",na.strings=c("#N/A","N/A","NULL"),quote="",stringsAsFactors = FALSE,dec=",")
   #Uniformamos el formato de fechas de toda la columna de eventos
   datos[,2] <- as.Date(datos[,2],format='%d/%m/%Y')
   #Ordenamos la matriz por orden alfab?tico de empresa y posteriormente por fecha de evento
@@ -114,7 +114,7 @@ analisisRentabilidad <- function(datos,datos_mercados="datos_mercados.txt", form
   empresa <- as.character(datos[1,1]) #Primera empresa de la matriz
   mercado <- datos[1,3] #Mercado de la primera empresa de la matriz
   #Carga,limpieza y adecuaci?n de los datos de la empresa
-  datos_empresa <- read.table(paste(directorio,'/',as.character(empresa),'.txt',sep = ''), comment.char="",na.strings=c("#N/A","N/A"),sep="\t",quote="",header=T,dec=",")
+  datos_empresa <- read.table(paste(directorio,'/',as.character(empresa),'.txt',sep = ''), comment.char="",na.strings=c("#N/A","N/A","NULL"),sep="\t",quote="",header=T,dec=",")
   colnames(datos_empresa) <- c("Date","PX_LAST","PX_VOLUME")
   datos_empresa <- datos_empresa[!is.na(datos_empresa[,"PX_LAST"]),]
   datos_empresa <- datos_empresa[format(datos_empresa[,"Date"],format='%d/%m')!="01/01",]
@@ -126,7 +126,7 @@ analisisRentabilidad <- function(datos,datos_mercados="datos_mercados.txt", form
     if(i>=2 && datos[i,1] != datos[i-1,1]){  #este if sirve para cargar solo los datos de empresas que no se hayan cargado, sean distintas a la anterior fila...
       empresa <- datos[i,1]
       mercado <- datos[i,3]
-      datos_empresa <- read.table(paste(directorio,'/',as.character(empresa),'.txt',sep = ''), comment.char="",na.strings=c("#N/A","N/A"),sep="\t",quote="",header=T,dec=",")
+      datos_empresa <- read.table(paste(directorio,'/',as.character(empresa),'.txt',sep = ''), comment.char="",na.strings=c("#N/A","N/A","NULL"),sep="\t",quote="",header=T,dec=",")
       colnames(datos_empresa) <- c("Date","PX_LAST","PX_VOLUME")
       datos_empresa <- datos_empresa[!is.na(datos_empresa[,"PX_LAST"]),]
       datos_empresa <- datos_empresa[format(datos_empresa[,"Date"],format='%d/%m')!="01/01",]
@@ -882,8 +882,8 @@ CALCULO_MATRIZKPI <- function (MARKET, COMPANY, fecha_evento, inicio, fin,
                                directorio){
   #Valores estables: valores de un mercado de bajo riesgo, por ejemplo letras del tesoro
   #mercado: mercado donde cotiza la EMPRESA
-  # datos <- read.table(datos_mercados, comment.char="",na.strings=c("#N/A","N/A"),sep="\t",quote="",header=T,dec=",")
-  datos <- read.table(datos_mercados, comment.char="",na.strings=c("#N/A","N/A"),sep="\t",quote="",header=T,dec=",")
+  # datos <- read.table(datos_mercados, comment.char="",na.strings=c("#N/A","N/A","NULL"),sep="\t",quote="",header=T,dec=",")
+  datos <- read.table(datos_mercados, comment.char="",na.strings=c("#N/A","N/A","NULL"),sep="\t",quote="",header=T,dec=",")
   
   dia1 = as.Date(inicio,format='%d/%m/%Y')
   dia2 = as.Date(fin, format='%d/%m/%Y')
