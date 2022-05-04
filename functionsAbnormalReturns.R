@@ -1,6 +1,7 @@
 # Antigua función leerTabla
 rentabilidadEmpresa <- function(nombreEmpresa, directorio){
-  datos <-read.table(paste(directorio,'/',nombreEmpresa,'.txt',sep=''), comment.char="",na.strings="",sep="\t",quote="",header=T,dec=",")
+  # datos <-read.table(paste(directorio,'/',nombreEmpresa,'.txt',sep=''), comment.char="",na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec=".")
+  datos <-read.table(paste(directorio,'/',nombreEmpresa,'.txt',sep=''), na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec=".")
   datos$Date <- as.Date(datos$Date, format="%d/%m/%Y")
   datos$Rentabilidad[2:nrow(datos)] <- log(datos$PX_LAST[2:nrow(datos)] / datos$PX_LAST[1:(nrow(datos)-1)])  
   colnames(datos)<-c("Date","PX_LAST","PX_VOLUME",nombreEmpresa)
@@ -11,7 +12,7 @@ rentabilidadEmpresa <- function(nombreEmpresa, directorio){
 rentabilidadMercado <- function(archivoDatosMercado, columna){ #Calcula la rentabilidad de una columna dada y devuelve dos columnas: Fecha y Rentabilidad
   #archivoDatosMercado="datos_mercados.txt"
   #columna="IGBM"
-  datos <-read.table(archivoDatosMercado, na.strings=c("#N/A","N/A","NULL"),sep="\t",quote="",header=T,dec=",")
+  datos <-read.table(archivoDatosMercado, na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec=".")
   #Elimino los valores que son NA
   datos <- datos[!is.na(datos[,eval(columna)]),]
   datos$Date <- as.Date(datos$Date, format="%d/%m/%Y")
@@ -24,11 +25,14 @@ comprobacionesFactores <- function (documentoEventos,
                                     datos_muestra="datos_muestra.txt",
                                     datos_mercados="datos_mercados.txt"){
   setwd(directorioDatos)
-  DATOS_EVENTOS <- read.table(documentoEventos,sep="\t",header=T,comment.char="",na.strings=c("#N/A","N/A","NULL"),quote="",stringsAsFactors = FALSE,dec=",")
-  DATOS_MUESTRA <- read.table(datos_muestra,sep="\t",header=T,comment.char="",na.strings="-",quote="",stringsAsFactors = FALSE,dec=",")
+  # DATOS_EVENTOS <- read.table(documentoEventos,sep="\t",header=T,comment.char="",na.strings=c("","#N/A","N/A","NULL","-"),quote="",stringsAsFactors = FALSE,dec=".")
+  DATOS_EVENTOS <- read.table(documentoEventos,sep="\t",header=T,na.strings=c("","#N/A","N/A","NULL","-"),quote="",stringsAsFactors = FALSE,dec=".")
+  # DATOS_MUESTRA <- read.table(datos_muestra,sep="\t",header=T,comment.char="",na.strings=c("","#N/A","N/A","NULL","-"),quote="",stringsAsFactors = FALSE,dec=".")
+  DATOS_MUESTRA <- read.table(datos_muestra,sep="\t",header=T,na.strings=c("","#N/A","N/A","NULL","-"),quote="",stringsAsFactors = FALSE,dec=".")
   colnames(DATOS_MUESTRA) <- c("COMPANY","TICKER","MARKET",'YEAR',"STARTING_PRICE_YEAR(t-1)","CLOSING_PRICE_YEAR(t-1)","MARKET_CAP(t-1)",
                                "TOTAL_EQUITY(t-1)","REVENUES(t-1)","COGS(t-1)","SG&A(t-1)","INTEREST_EXPENSE(t-1)","ASSETS(t-1)","ASSETS(t-2)")
-  DATOS_MERCADOS <- read.table(datos_mercados,sep="\t",header=T,comment.char="",na.strings=c("#N/A","N/A","NULL"),quote="",stringsAsFactors = FALSE,dec=",")
+  # DATOS_MERCADOS <- read.table(datos_mercados,sep="\t",header=T,comment.char="",na.strings=c("","#N/A","N/A","NULL","-"),quote="",stringsAsFactors = FALSE,dec=".")
+  DATOS_MERCADOS <- read.table(datos_mercados,sep="\t",header=T,na.strings=c("","#N/A","N/A","NULL","-"),quote="",stringsAsFactors = FALSE,dec=".")
   EMPRESAS_DIRECTORIO <- data.frame(EMPRESAS = unique(list.files(directorioDatos,pattern = ".txt")))
   RESULTADO <- data.frame(EMPRESA=unique(DATOS_EVENTOS$COMPANY), EN_DATOS_MUESTRA=NA, EN_DIRECTORIO =NA)
   
@@ -66,7 +70,8 @@ analisisRentabilidad <- function(datos,datos_mercados="datos_mercados.txt", form
   ##CARGA DE DATOS DE MERCADO -----------------------------------------------------------------------------------
   #Lectura de datos del mercado
   
-  datos_todos_mercados <- read.table(datos_mercados,comment.char="",na.strings=c("#N/A","N/A","NULL"),sep="\t",quote="",header=T,dec=",")
+  # datos_todos_mercados <- read.table(datos_mercados,comment.char="",na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec=".")
+  datos_todos_mercados <- read.table(datos_mercados,na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec=".")
   #Con este for se pretende limpiar los datos de cada columna de mercado y crear un objeto R para cada mercado
   #df_inter es una variable intermedia que vamos pisando para coger cada mercado y al final de cada iteracion la asignamos a un objeto R con el nombre del mercado
   #El objetivo es tener diferentes objetos de R creados en diferentes iteraciones con los datos de cada mercado, para ser mas eficientes y no ir reevaluando el 
@@ -90,7 +95,8 @@ analisisRentabilidad <- function(datos,datos_mercados="datos_mercados.txt", form
   rm(datos_todos_mercados)#Elimino el objeto de datos_todos_mercados ya que tengo todos los mercados cargados en diferentes objetos
   
   ##CARGA DE DATOS DE EVENTOS Y EMPRESAS ------------------------------------------------------------------------------------
-  datos <- read.table(datos,sep="\t",header=T,comment.char="",na.strings=c("#N/A","N/A","NULL"),quote="",stringsAsFactors = FALSE,dec=",")
+  # datos <- read.table(datos,sep="\t",header=T,comment.char="",na.strings=c("","#N/A","N/A","NULL","-"),quote="",stringsAsFactors = FALSE,dec=".")
+  datos <- read.table(datos,sep="\t",header=T,na.strings=c("","#N/A","N/A","NULL","-"),quote="",stringsAsFactors = FALSE,dec=".")
   #Uniformamos el formato de fechas de toda la columna de eventos
   datos[,2] <- as.Date(datos[,2],format='%d/%m/%Y')
   #Ordenamos la matriz por orden alfab?tico de empresa y posteriormente por fecha de evento
@@ -114,7 +120,8 @@ analisisRentabilidad <- function(datos,datos_mercados="datos_mercados.txt", form
   empresa <- as.character(datos[1,1]) #Primera empresa de la matriz
   mercado <- datos[1,3] #Mercado de la primera empresa de la matriz
   #Carga,limpieza y adecuaci?n de los datos de la empresa
-  datos_empresa <- read.table(paste(directorio,'/',as.character(empresa),'.txt',sep = ''), comment.char="",na.strings=c("#N/A","N/A","NULL"),sep="\t",quote="",header=T,dec=",")
+  # datos_empresa <- read.table(paste(directorio,'/',as.character(empresa),'.txt',sep = ''), comment.char="",na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec=".")
+  datos_empresa <- read.table(paste(directorio,'/',as.character(empresa),'.txt',sep = ''), na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec=".")
   colnames(datos_empresa) <- c("Date","PX_LAST","PX_VOLUME")
   datos_empresa <- datos_empresa[!is.na(datos_empresa[,"PX_LAST"]),]
   datos_empresa <- datos_empresa[format(datos_empresa[,"Date"],format='%d/%m')!="01/01",]
@@ -126,7 +133,8 @@ analisisRentabilidad <- function(datos,datos_mercados="datos_mercados.txt", form
     if(i>=2 && datos[i,1] != datos[i-1,1]){  #este if sirve para cargar solo los datos de empresas que no se hayan cargado, sean distintas a la anterior fila...
       empresa <- datos[i,1]
       mercado <- datos[i,3]
-      datos_empresa <- read.table(paste(directorio,'/',as.character(empresa),'.txt',sep = ''), comment.char="",na.strings=c("#N/A","N/A","NULL"),sep="\t",quote="",header=T,dec=",")
+      # datos_empresa <- read.table(paste(directorio,'/',as.character(empresa),'.txt',sep = ''), comment.char="",na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec=".")
+      datos_empresa <- read.table(paste(directorio,'/',as.character(empresa),'.txt',sep = ''), na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec=".")
       colnames(datos_empresa) <- c("Date","PX_LAST","PX_VOLUME")
       datos_empresa <- datos_empresa[!is.na(datos_empresa[,"PX_LAST"]),]
       datos_empresa <- datos_empresa[format(datos_empresa[,"Date"],format='%d/%m')!="01/01",]
@@ -182,11 +190,13 @@ EMPRESAS_SMB <- function(datos_eventos,datos_muestra,fecha_evento,MARKET,porc_em
   #Año del evento
   YEAR <- format(as.Date(fecha_evento,format='%d/%m/%Y'),'%Y')
   #Lectura de los datos asociados a datos_muestra... (documento de texto)
-  datos_muestra<-read.table(datos_muestra, comment.char="",na.strings="-",sep="\t",quote="",header=T,dec=",",stringsAsFactors = F)
+  # datos_muestra<-read.table(datos_muestra, comment.char="",na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec=".",stringsAsFactors = F)
+  datos_muestra<-read.table(datos_muestra, na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec=".",stringsAsFactors = F)
   colnames(datos_muestra) <- c("COMPANY","TICKER","MARKET",'YEAR',"STARTING_PRICE_YEAR(t-1)","CLOSING_PRICE_YEAR(t-1)","MARKET_CAP(t-1)",
                                "TOTAL_EQUITY(t-1)","REVENUES(t-1)","COGS(t-1)","SG&A(t-1)","INTEREST_EXPENSE(t-1)","ASSETS(t-1)","ASSETS(t-2)")
   #Lectura de los datos del documento eventos
-  datos_eventos <- read.table(datos_eventos, comment.char="",na.strings="-",sep="\t",quote="",header=T,dec=",",stringsAsFactors = F)
+  # datos_eventos <- read.table(datos_eventos, comment.char="",na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec=".",stringsAsFactors = F)
+  datos_eventos <- read.table(datos_eventos, na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec=".",stringsAsFactors = F)
   colnames(datos_eventos) <- c("COMPANY","DATE","MARKET")
   #Filtraje de las empresas que han tenido eventos en el año del evento que estudiamos
   datos_eventos <- datos_eventos[format(as.Date(datos_eventos$DATE,format='%d/%m/%Y'),'%Y') == YEAR,] 
@@ -216,11 +226,13 @@ EMPRESAS_HML <- function(datos_muestra="datos_muestra.txt",datos_eventos="datos_
   #Año del evento
   YEAR <- format(as.Date(fecha_evento,format='%d/%m/%Y'),'%Y')
   #Lectura de los datos asociados a datos_muestra... (documento de texto)
-  datos_muestra<-read.table(datos_muestra, comment.char="",na.strings="-",sep="\t",quote="",header=T,dec=",",stringsAsFactors = F)
+  # datos_muestra<-read.table(datos_muestra, comment.char="",na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec=".",stringsAsFactors = F)
+  datos_muestra<-read.table(datos_muestra, na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec=".",stringsAsFactors = F)
   colnames(datos_muestra) <- c("COMPANY","TICKER","MARKET",'YEAR',"STARTING_PRICE_YEAR(t-1)","CLOSING_PRICE_YEAR(t-1)","MARKET_CAP(t-1)",
                                "TOTAL_EQUITY(t-1)","REVENUES(t-1)","COGS(t-1)","SG&A(t-1)","INTEREST_EXPENSE(t-1)","ASSETS(t-1)","ASSETS(t-2)")
   #Lectura de los datos del documento eventos
-  datos_eventos <- read.table(datos_eventos, comment.char="",na.strings="-",sep="\t",quote="",header=T,dec=",",stringsAsFactors = F)
+  # datos_eventos <- read.table(datos_eventos, comment.char="",na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec=".",stringsAsFactors = F)
+  datos_eventos <- read.table(datos_eventos, na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec=".",stringsAsFactors = F)
   colnames(datos_eventos) <- c("COMPANY","DATE","MARKET")
   #Filtraje de las empresas que han tenido eventos en el año del evento que estudiamos
   datos_eventos <- datos_eventos[format(as.Date(datos_eventos$DATE,format='%d/%m/%Y'),'%Y') == YEAR,] 
@@ -251,11 +263,13 @@ EMPRESAS_RMW <- function(fecha_evento, MARKET,datos_muestra="datos_muestra.txt",
   #Año del evento
   YEAR <- format(as.Date(fecha_evento,format='%d/%m/%Y'),'%Y')
   #Lectura de los datos asociados a datos_muestra... (documento de texto)
-  datos_muestra<-read.table(datos_muestra, comment.char="",na.strings="-",sep="\t",quote="",header=T,dec=",",stringsAsFactors = F)
+  # datos_muestra<-read.table(datos_muestra, comment.char="",na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec=".",stringsAsFactors = F)
+  datos_muestra<-read.table(datos_muestra, na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec=".",stringsAsFactors = F)
   colnames(datos_muestra) <- c("COMPANY","TICKER","MARKET",'YEAR',"STARTING_PRICE_YEAR(t-1)","CLOSING_PRICE_YEAR(t-1)","MARKET_CAP(t-1)",
                                "TOTAL_EQUITY(t-1)","REVENUES(t-1)","COGS(t-1)","SG&A(t-1)","INTEREST_EXPENSE(t-1)","ASSETS(t-1)","ASSETS(t-2)")
   #Lectura de los datos del documento eventos
-  datos_eventos <- read.table(datos_eventos, comment.char="",na.strings="-",sep="\t",quote="",header=T,dec=",",stringsAsFactors = F)
+  # datos_eventos <- read.table(datos_eventos, comment.char="",na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec=".",stringsAsFactors = F)
+  datos_eventos <- read.table(datos_eventos, na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec=".",stringsAsFactors = F)
   colnames(datos_eventos) <- c("COMPANY","DATE","MARKET")
   #Filtraje de las empresas que han tenido eventos en el año del evento que estudiamos
   datos_eventos <- datos_eventos[format(as.Date(datos_eventos$DATE,format='%d/%m/%Y'),'%Y') == YEAR,] 
@@ -286,11 +300,13 @@ EMPRESAS_CMA <- function(fecha_evento, MARKET, datos_muestra="datos_muestra.txt"
   #Año del evento
   YEAR <- format(as.Date(fecha_evento,format='%d/%m/%Y'),'%Y')
   #Lectura de los datos asociados a datos_muestra... (documento de texto)
-  datos_muestra<-read.table(datos_muestra, comment.char="",na.strings="-",sep="\t",quote="",header=T,dec=",",stringsAsFactors = F)
+  # datos_muestra<-read.table(datos_muestra, comment.char="",na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec=".",stringsAsFactors = F)
+  datos_muestra<-read.table(datos_muestra, na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec=".",stringsAsFactors = F)
   colnames(datos_muestra) <- c("COMPANY","TICKER","MARKET",'YEAR',"STARTING_PRICE_YEAR(t-1)","CLOSING_PRICE_YEAR(t-1)","MARKET_CAP(t-1)",
                                "TOTAL_EQUITY(t-1)","REVENUES(t-1)","COGS(t-1)","SG&A(t-1)","INTEREST_EXPENSE(t-1)","ASSETS(t-1)","ASSETS(t-2)")
   #Lectura de los datos del documento eventos
-  datos_eventos <- read.table(datos_eventos, comment.char="",na.strings="-",sep="\t",quote="",header=T,dec=",",stringsAsFactors = F)
+  # datos_eventos <- read.table(datos_eventos, comment.char="",na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec=".",stringsAsFactors = F)
+  datos_eventos <- read.table(datos_eventos, na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec=".",stringsAsFactors = F)
   colnames(datos_eventos) <- c("COMPANY","DATE","MARKET")
   #Filtraje de las empresas que han tenido eventos en el año del evento que estudiamos
   datos_eventos <- datos_eventos[format(as.Date(datos_eventos$DATE,format='%d/%m/%Y'),'%Y') == YEAR,] 
@@ -317,13 +333,16 @@ EMPRESAS_CMA <- function(fecha_evento, MARKET, datos_muestra="datos_muestra.txt"
 
 EMPRESAS_UMD <- function(fecha_evento, MARKET, datos_muestra="datos_muestra.txt", datos_eventos="datos_eventos.txt",porc_empr_UMD=0.3){
     #Año del evento
+
     YEAR <- format(as.Date(fecha_evento,format='%d/%m/%Y'),'%Y')
     #Lectura de los datos asociados a datos_muestra... (documento de texto)
-    datos_muestra<-read.table(datos_muestra, comment.char="",na.strings="-",sep="\t",quote="",header=T,dec=",",stringsAsFactors = F)
+    # datos_muestra<-read.table(datos_muestra, comment.char="",na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec=".",stringsAsFactors = F)
+    datos_muestra<-read.table(datos_muestra, na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec=".",stringsAsFactors = F)
     colnames(datos_muestra) <- c("COMPANY","TICKER","MARKET",'YEAR',"STARTING_PRICE_YEAR(t-1)","CLOSING_PRICE_YEAR(t-1)","MARKET_CAP(t-1)",
                                  "TOTAL_EQUITY(t-1)","REVENUES(t-1)","COGS(t-1)","SG&A(t-1)","INTEREST_EXPENSE(t-1)","ASSETS(t-1)","ASSETS(t-2)")
     #Lectura de los datos del documento eventos
-    datos_eventos <- read.table(datos_eventos, comment.char="",na.strings="-",sep="\t",quote="",header=T,dec=",",stringsAsFactors = F)
+    # datos_eventos <- read.table(datos_eventos, comment.char="",na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec=".",stringsAsFactors = F)
+    datos_eventos <- read.table(datos_eventos, na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec=".",stringsAsFactors = F)
     colnames(datos_eventos) <- c("COMPANY","DATE","MARKET")
     #Filtraje de las empresas que han tenido eventos en el año del evento que estudiamos
     datos_eventos <- datos_eventos[format(as.Date(datos_eventos$DATE,format='%d/%m/%Y'),'%Y') == YEAR,] 
@@ -344,6 +363,7 @@ EMPRESAS_UMD <- function(fecha_evento, MARKET, datos_muestra="datos_muestra.txt"
     CRIT_INTERVAR$UMD <- ifelse(CRIT_INTERVAR$INTERVAR<=quantile(CRIT_INTERVAR$INTERVAR,porc_empr_UMD,na.rm=TRUE), "DOWN", 
                            ifelse(CRIT_INTERVAR$INTERVAR<=quantile(CRIT_INTERVAR$INTERVAR,1-porc_empr_UMD,na.rm=TRUE),"MEDIUM","UP"))
     EMPRESAS_UMD_ext <<- CRIT_INTERVAR
+
     return(CRIT_INTERVAR)
   }   
 
@@ -723,8 +743,14 @@ CALCULO_UMD <- function(datos_muestra="datos_muestra.txt",datos_eventos="datos_e
                         fecha_evento, MARKET,inicio,fin,porc_empr_UMD=0.3,porc_empr_SMB=0.5, 
                         directorio){
   
-  EMP_UMD <- EMPRESAS_UMD(datos_muestra=datos_muestra, datos_eventos=datos_eventos, 
-                          fecha_evento=fecha_evento,MARKET=MARKET, porc_empr_UMD = porc_empr_UMD)
+  # EMP_UMD <- EMPRESAS_UMD(datos_muestra=datos_muestra, datos_eventos=datos_eventos, 
+                          # fecha_evento=fecha_evento,MARKET=MARKET, porc_empr_UMD = porc_empr_UMD)
+  EMP_UMD <- EMPRESAS_UMD(fecha_evento=fecha_evento, MARKET=MARKET,datos_muestra=datos_muestra, 
+                           datos_eventos=datos_eventos, 
+                           porc_empr_UMD = porc_empr_UMD)
+  # EMPRESAS_UMD <- function(fecha_evento, MARKET, datos_muestra="datos_muestra.txt", 
+                    # datos_eventos="datos_eventos.txt",porc_empr_UMD=0.3){
+    
   EMP_SMB <- EMPRESAS_SMB(datos_muestra=datos_muestra, datos_eventos=datos_eventos,
                           fecha_evento=fecha_evento, MARKET=MARKET,porc_empr_SMB = porc_empr_SMB)
   dia1 = as.Date(inicio,format='%d/%m/%Y')
@@ -733,22 +759,26 @@ CALCULO_UMD <- function(datos_muestra="datos_muestra.txt",datos_eventos="datos_e
   #CALCULO PARA EL CONJUNTO S/D
   matrizSD <- data.frame(Date=seq(dia1,dia2,by=1))
   empresasSD <- EMP_UMD[EMP_UMD$UMD=="DOWN","EMPRESA"]
+
   empresasSD <- empresasSD[empresasSD %in% EMP_SMB[EMP_SMB$SMB=="SMALL","EMPRESA"]]
+
   #FOR para recorrer las EMPRESAS del conjunto S/D
   for (i in 1:length(empresasSD)){
     EMPRESA <- as.character(empresasSD[i])
     datos <- rentabilidadEmpresa(EMPRESA, directorio = directorio)
     matrizSD[,EMPRESA] <-  merge(x=matrizSD["Date"],y=datos[,c("Date",EMPRESA)],by="Date",all.x=TRUE)[,2] 
   }
+
   #calculo del promedio para S/D
   if(ncol(matrizSD) == 2) {
     matrizSD$AVG_SD <- matrizSD[,2:ncol(matrizSD)]
   }else{
     matrizSD$AVG_SD<- apply(matrizSD[,2:ncol(matrizSD)],1,mean,na.rm=TRUE)
   }
-  
+
   #CALCULO PARA EL CONJUNTO S/UD (MEDIUM)
   matrizSUD <- data.frame(Date=seq(dia1,dia2,by=1))
+
   empresasSUD <- EMP_UMD[EMP_UMD$UMD=="MEDIUM","EMPRESA"]
   empresasSUD <- empresasSUD[empresasSUD %in% EMP_SMB[EMP_SMB$SMB=="SMALL","EMPRESA"]]
   #FOR para recorrer las EMPRESAs del conjunto S/UD
@@ -757,13 +787,14 @@ CALCULO_UMD <- function(datos_muestra="datos_muestra.txt",datos_eventos="datos_e
     datos <- rentabilidadEmpresa(EMPRESA, directorio = directorio)
     matrizSUD[,EMPRESA] <-  merge(x=matrizSUD["Date"],y=datos[,c("Date",EMPRESA)],by="Date",all.x=TRUE)[,2] 
   }
+
   #calculo del promedio para S/UD
   if(ncol(matrizSUD) == 2) {
     matrizSUD$AVG_SUD <- matrizSUD[,2:ncol(matrizSUD)]
   }else{
     matrizSUD$AVG_SUD<- apply(matrizSUD[,2:ncol(matrizSUD)],1,mean,na.rm=TRUE)
   }
-  
+
   #CALCULO PARA EL CONJUNTO S/U
   matrizSU <- data.frame(Date=seq(dia1,dia2,by=1))
   empresasSU <- EMP_UMD[EMP_UMD$UMD=="UP","EMPRESA"]
@@ -780,7 +811,7 @@ CALCULO_UMD <- function(datos_muestra="datos_muestra.txt",datos_eventos="datos_e
   }else{
     matrizSU$AVG_SU<- apply(matrizSU[,2:ncol(matrizSU)],1,mean,na.rm=TRUE)
   }
-  
+
   #CALCULO PARA EL CONJUNTO B/D
   matrizBD <- data.frame(Date=seq(dia1,dia2,by=1))
   empresasBD <- EMP_UMD[EMP_UMD$UMD=="DOWN","EMPRESA"]
@@ -797,7 +828,7 @@ CALCULO_UMD <- function(datos_muestra="datos_muestra.txt",datos_eventos="datos_e
   }else{
     matrizBD$AVG_BD<- apply(matrizBD[,2:ncol(matrizBD)],1,mean,na.rm=TRUE)
   }
-  
+
   #CALCULO PARA EL CONJUNTO B/UD (MEDIUM)
   matrizBUD <- data.frame(Date=seq(dia1,dia2,by=1))
   empresasBUD <- EMP_UMD[EMP_UMD$UMD=="MEDIUM","EMPRESA"]
@@ -814,7 +845,7 @@ CALCULO_UMD <- function(datos_muestra="datos_muestra.txt",datos_eventos="datos_e
   }else{
     matrizBUD$AVG_BUD<- apply(matrizBUD[,2:ncol(matrizBUD)],1,mean,na.rm=TRUE)
   }
-  
+
   #CALCULO PARA EL CONJUNTO B/U
   matrizBU <- data.frame(Date=seq(dia1,dia2,by=1))
   empresasBU <- EMP_UMD[EMP_UMD$UMD=="UP","EMPRESA"]
@@ -831,7 +862,7 @@ CALCULO_UMD <- function(datos_muestra="datos_muestra.txt",datos_eventos="datos_e
   }else{
     matrizBU$AVG_BU<- apply(matrizBU[,2:ncol(matrizBU)],1,mean,na.rm=TRUE)
   }
-  
+
   matrizUMD <- data.frame(Date=matrizSD$Date,AVG_SD=matrizSD$AVG_SD,
                           AVG_SUD=matrizSUD$AVG_SUD,AVG_SU=matrizSU$AVG_SU,
                           AVG_BD=matrizBD$AVG_BD,AVG_BUD=matrizBUD$AVG_BUD,
@@ -882,13 +913,12 @@ CALCULO_MATRIZKPI <- function (MARKET, COMPANY, fecha_evento, inicio, fin,
                                directorio){
   #Valores estables: valores de un mercado de bajo riesgo, por ejemplo letras del tesoro
   #mercado: mercado donde cotiza la EMPRESA
-  # datos <- read.table(datos_mercados, comment.char="",na.strings=c("#N/A","N/A","NULL"),sep="\t",quote="",header=T,dec=",")
-  datos <- read.table(datos_mercados, comment.char="",na.strings=c("#N/A","N/A","NULL"),sep="\t",quote="",header=T,dec=",")
-  
+  # datos <- read.table(datos_mercados, comment.char="",na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec=".")
+  datos <- read.table(datos_mercados, na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec=".")
   dia1 = as.Date(inicio,format='%d/%m/%Y')
   dia2 = as.Date(fin, format='%d/%m/%Y')
   MATRIZKPI <- data.frame(Date=seq(dia1,dia2,by=1))
-  
+
   #Calculamos los valores de rentabilidad diaria para los valores estables y el mercado
   #mercado
   rentabilidad_mercado <- rentabilidadMercado(datos_mercados, MARKET)
@@ -896,22 +926,23 @@ CALCULO_MATRIZKPI <- function (MARKET, COMPANY, fecha_evento, inicio, fin,
   
   MATRIZKPI$RM <- merge(x=MATRIZKPI, y=rentabilidad_mercado[,c("Date","Rentabilidad")], by="Date",all.x=TRUE)[,2]
   #Valores Estables --> Partimos de un documento que ya cuenta con una columna de rentabilidades diarias
-  RF <- read.table(valores_estables,comment.char="",na.strings="",sep="\t",quote="",header=T,dec=",")
+  # RF <- read.table(valores_estables,comment.char="",na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec=".")
+  RF <- read.table(valores_estables,na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec=".")
   RF$Date <- as.Date(RF$Date, format= "%d/%m/%Y")
 
   MATRIZKPI$RF <- merge(x=data.frame(Date=MATRIZKPI[,1]), y=RF[,c("Date","RF")], by="Date",all.x=TRUE)[,2]
-  
+
   #Calculamos los valores de rentabilidad para la EMPRESA en cuestión
   EMP <- rentabilidadEmpresa(COMPANY,directorio=directorio)
   EMP$Date <- as.Date(EMP$Date,format="%d/%m/%Y")
   colnames(EMP)<-c("Date","PX_LAST","PX_VOLUME","RE")
   MATRIZKPI$RE <- merge(x=MATRIZKPI["Date"], y=EMP[,c("Date","RE")], by="Date",all.x=TRUE)[,2]
-  
+
   #Rit-Rf
   MATRIZKPI$RitRf <- MATRIZKPI$RE - MATRIZKPI$RF
   #RM-Rf
   MATRIZKPI$RMRF <- MATRIZKPI$RM - MATRIZKPI$RF
-  
+
   #Añadimos el conjunto SMB,HML y UMD
   #SMB
   SMB <- CALCULO_SMB(datos_muestra=datos_muestra, datos_eventos=datos_eventos, fecha_evento=fecha_evento,MARKET=MARKET , inicio, fin,porc_empr_SMB=porc_empr_SMB,porc_empr_RMW=porc_empr_RMW,porc_empr_HML=porc_empr_HML,porc_empr_CMA=porc_empr_CMA,directorio=directorio)
@@ -928,9 +959,10 @@ CALCULO_MATRIZKPI <- function (MARKET, COMPANY, fecha_evento, inicio, fin,
   #CMA
   CMA <- CALCULO_CMA(datos_muestra=datos_muestra, datos_eventos=datos_eventos, fecha_evento=fecha_evento,MARKET=MARKET , inicio, fin,porc_empr_CMA=porc_empr_CMA,porc_empr_SMB=porc_empr_SMB,directorio=directorio)
   MATRIZKPI$CMA <- merge(x=MATRIZKPI["Date"], y=CMA[,c("Date","CMA")], by="Date",all.x=TRUE)[,2]
-  
+
   #Elimino los dias en que HML es NA, serán festivos o fines de semana...
   MATRIZKPI <- MATRIZKPI[!is.na(MATRIZKPI[,"HML"]),]
+
   if (COMPANY=="3M") MATRIZ <<- MATRIZKPI
   return(MATRIZKPI) 
 }
@@ -952,12 +984,12 @@ ESTIMACION_3F_EMPRESA <- function(fecha_evento,COMPANY,MARKET,
                                   #,inicio, 
                                   #fin
 ){
-  
   #Como dias de inicio y fin de las ventanas de matrizKPI hago una ventana de margen_dias=200 filas de cotizacion desde el evento,
   #es un aprox, para nada crítico
   
   #EMPRESA
-  datos_EMPRESA <- read.table(paste(directorio,'/',COMPANY,'.txt',sep=''), comment.char="",na.strings="",sep="\t",quote="",header=T,dec=",")
+  # datos_EMPRESA <- read.table(paste(directorio,'/',COMPANY,'.txt',sep=''), comment.char="",na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec=".")
+  datos_EMPRESA <- read.table(paste0(directorio,'/',COMPANY,'.txt'), na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec=".")
   datos_EMPRESA$Date <- as.Date(datos_EMPRESA$Date, format="%d/%m/%Y")
   #Establezco la fila donde esta el evento dentro del doc de la EMPRESA
   fila_evento <- which(datos_EMPRESA$Date == as.Date(fecha_evento,format="%d/%m/%Y"))
@@ -970,22 +1002,23 @@ ESTIMACION_3F_EMPRESA <- function(fecha_evento,COMPANY,MARKET,
                                  datos_mercados=datos_mercados, valores_estables=valores_estables,datos_eventos=datos_eventos,
                                  porc_empr_SMB=porc_empr_SMB,porc_empr_HML=porc_empr_HML,directorio=directorio)
   
-  
+
   #AJUSTE
   fila_evento_matriz <- which(MATRIZKPI$Date == as.Date(fecha_evento,format="%d/%m/%Y"))
   MATRIZ_ESTIMACION <- data.frame(Dia = paste("Dia", -LIE:LVE, sep=""),
                                   Date=MATRIZKPI$Date[(fila_evento_matriz - LIE):(fila_evento_matriz + LVE)])
-  
+
   #Incluimos valores que teniamos en la MATRIZKPI y que van a servir para hacer el ajuste...
   MATRIZ_ESTIMACION$RitRf <- merge(x=MATRIZ_ESTIMACION["Date"], y=MATRIZKPI[,c("Date","RitRf")], by="Date",all.x=TRUE)[,2]
-  
+
   MATRIZ_ESTIMACION$RM <- merge(x=MATRIZ_ESTIMACION["Date"], y=MATRIZKPI[,c("Date","RM")], by="Date",all.x=TRUE)[,2]
+
   MATRIZ_ESTIMACION$RF <- merge(x=MATRIZ_ESTIMACION["Date"], y=MATRIZKPI[,c("Date","RF")], by="Date",all.x=TRUE)[,2]
-  
+
   MATRIZ_ESTIMACION$RMRF <- merge(x=MATRIZ_ESTIMACION["Date"], y=MATRIZKPI[,c("Date","RMRF")], by="Date",all.x=TRUE)[,2]
   MATRIZ_ESTIMACION$SMB <- merge(x=MATRIZ_ESTIMACION["Date"], y=MATRIZKPI[,c("Date","SMB")], by="Date",all.x=TRUE)[,2]
   MATRIZ_ESTIMACION$HML <- merge(x=MATRIZ_ESTIMACION["Date"], y=MATRIZKPI[,c("Date","HML")], by="Date",all.x=TRUE)[,2]
-  
+
   #Cálculo coeficientes de ajuste
   ajuste <- lm(RitRf ~ 0 + RMRF + SMB + HML , 
                data = MATRIZ_ESTIMACION[1:as.numeric(dim(MATRIZ_ESTIMACION)[1]-(LVE*2)),])
@@ -995,11 +1028,13 @@ ESTIMACION_3F_EMPRESA <- function(fecha_evento,COMPANY,MARKET,
   MATRIZ_ESTIMACION$RitRfEstim <- predict(ajuste,MATRIZ_ESTIMACION)
   #RitReal
   MATRIZ_ESTIMACION$RE <- merge(x=MATRIZ_ESTIMACION["Date"], y=MATRIZKPI[,c("Date","RE")], by="Date",all.x=TRUE)[,2]
-  #RitEstimado
+
+   #RitEstimado
   MATRIZ_ESTIMACION$RitEstim <- MATRIZ_ESTIMACION$RitRfEstim + MATRIZ_ESTIMACION$RF
+
   #Anormalidad
   MATRIZ_ESTIMACION$ARIT <- MATRIZ_ESTIMACION$RE - MATRIZ_ESTIMACION$RitEstim
-  
+
   return(MATRIZ_ESTIMACION)
 }
 
@@ -1020,7 +1055,8 @@ ESTIMACION_4F_EMPRESA <- function(fecha_evento,COMPANY,MARKET,
   #es un aprox, para nada crítico
   
   #EMPRESA
-  datos_EMPRESA <- read.table(paste(directorio,'/',COMPANY,'.txt',sep=""), comment.char="",na.strings="",sep="\t",quote="",header=T,dec=",")
+  # datos_EMPRESA <- read.table(paste(directorio,'/',COMPANY,'.txt',sep=""), comment.char="",na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec=".")
+  datos_EMPRESA <- read.table(paste(directorio,'/',COMPANY,'.txt',sep=""), na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec=".")
   datos_EMPRESA$Date <- as.Date(datos_EMPRESA$Date, format="%d/%m/%Y")
   #Establezco la fila donde esta el evento dentro del doc de la EMPRESA
   fila_evento <- which(datos_EMPRESA$Date == as.Date(fecha_evento,format="%d/%m/%Y"))
@@ -1089,7 +1125,8 @@ ESTIMACION_5F_EMPRESA <- function(fecha_evento,COMPANY,MARKET,
   #es un aprox, para nada crítico
   
   #EMPRESA
-  datos_EMPRESA <- read.table(paste(directorio,'/',COMPANY,'.txt',sep=""), comment.char="",na.strings="",sep="\t",quote="",header=T,dec=",")
+  # datos_EMPRESA <- read.table(paste(directorio,'/',COMPANY,'.txt',sep=""), comment.char="",na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec=".")
+  datos_EMPRESA <- read.table(paste(directorio,'/',COMPANY,'.txt',sep=""), na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec=".")
   datos_EMPRESA$Date <- as.Date(datos_EMPRESA$Date, format="%d/%m/%Y")
   #Establezco la fila donde esta el evento dentro del doc de la EMPRESA
   fila_evento <- which(datos_EMPRESA$Date == as.Date(fecha_evento,format="%d/%m/%Y"))
@@ -1160,7 +1197,7 @@ ACUMULATIVA_3F <- function( margen_dias_previo= 225,margen_dias_post= 50,LIE=170
                             format="%d/%m/%Y",
                             directorio){
   
-  #analisis_array <- read.table(datos_eventos, comment.char="",na.strings="",sep="\t",quote="",header=T,dec=",")
+  #analisis_array <- read.table(datos_eventos, comment.char="",na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec=".")
   
   #analisis_array$FECHA_EVENTO <- as.Date(analisis_array$FECHA_EVENTO, format="%d/%m/%Y")
   analisis_array <- analisisRentabilidad(datos=datos_eventos,datos_mercados =  datos_mercados, LIE=LIE, LVE=LVE,format=format,directorio = directorio)

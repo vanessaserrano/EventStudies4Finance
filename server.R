@@ -921,6 +921,8 @@ server <- function(input, output, session) {
     &emsp;> Date (list of days in a period of time where the event is included, dd/mm/YY format)<br/>
     &emsp;> Stock closing value per day<br/>
     &emsp;> Number of stocks traded per day<br/>
+    <br/>
+    The decimal separator symbol used must be the point    
     '
   })
   
