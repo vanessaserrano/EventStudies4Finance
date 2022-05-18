@@ -874,6 +874,10 @@ server <- function(input, output, session) {
     &emsp;> Market Data file<br/>
     &emsp;> Risk Free file<br/>
     <br/>
+    To run the Volume events analysis, Abnormal volumes, and Return events analysis only 
+    Event Data file and Stocks Sample folder are required.
+    <br/>
+    <br/>
     - Each folder needs to be open in its required location<br/>
     - Select the stocks sample folder<br/>
     - Select the analysis to be undertaken and adjust its parameters<br/>

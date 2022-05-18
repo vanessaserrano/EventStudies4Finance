@@ -79,82 +79,82 @@ ui <- fluidPage(
       tags$hr(),
       conditionalPanel(
         condition = "input.Function == 'Volume events analysis'",
-        numericInput('LSPE1', label = 'Upper Limit Estimate 1', value = 55),
-        numericInput('LSPE2', label = 'Upper Limit Estimate 2', value = 55)
+        numericInput('LSPE1', label = 'Upper Limit Estimate 1', value = 35),
+        numericInput('LSPE2', label = 'Upper Limit Estimate 2', value = 35)
       ),
       conditionalPanel(
         condition = "input.Function == 'Abnormal volumes'",
-        numericInput('LSPE11', label = 'Upper Limit Estimate 1', value = 55),
+        numericInput('LSPE11', label = 'Upper Limit Estimate 1', value = 35),
         numericInput('LIPE11', label = 'Lower Limit Estimate 1', value = 11),
-        numericInput('LSPE22', label = 'Upper Limit Estimate 2', value = 55),
+        numericInput('LSPE22', label = 'Upper Limit Estimate 2', value = 35),
         numericInput('LIPE22', label = 'Lower Limit Estimate 2', value = 11),
-        numericInput('LVE', label = 'Limit Event Window', value = 10)
+        numericInput('LVE', label = 'Limit Event Window', value = 2)
       ),
       conditionalPanel(
         condition = "input.Function == 'Return events analysis'",
-        numericInput('LIE1', label = 'Lower Limit Event', value = 30),
-        numericInput('LVE1', label = 'Limit Event Window', value = 10)
+        numericInput('LIE1', label = 'Lower Limit Event', value = 75),
+        numericInput('LVE1', label = 'Limit Event Window', value = 2)
       ),
       conditionalPanel(
         condition = "input.Function == 'Market model'",
-        numericInput('LIE2', label = 'Lower Limit Event', value = 30),
-        numericInput('LVE2', label = 'Limit Event Window', value = 10),
-        numericInput('VPE', label = 'Pre-Event Window', value = 10)
+        numericInput('LIE2', label = 'Lower Limit Event', value = 75),
+        numericInput('LVE2', label = 'Limit Event Window', value = 2),
+        numericInput('VPE', label = 'Pre-Event Window', value = 11)
       ),
       conditionalPanel(
         condition = "input.Function == '3 Factors'",
-        numericInput('LIE3', label = 'Lower Limit Event', value = 30),
-        numericInput('LVE3', label = 'Limit Event Window', value = 10),
-        numericInput('DNE', label = 'Calendar Days Event', value=60),
-        numericInput('DNV', label = 'Calendar Days Window', value=21)
+        numericInput('LIE3', label = 'Lower Limit Event', value = 75),
+        numericInput('LVE3', label = 'Limit Event Window', value = 2),
+        numericInput('DNE', label = 'Calendar Days Event', value=90),
+        numericInput('DNV', label = 'Calendar Days Window', value=5)
       ),
       conditionalPanel(
         condition = "input.Function == '4 Factors'",
-        numericInput('LIE4', label = 'Lower Limit Event', value = 30),
-        numericInput('LVE4', label = 'Limit Event Window', value = 10),
-        numericInput('DNE1', label = 'Calendar Days Event', value=60),
-        numericInput('DNV1', label = 'Calendar Days Window', value=21)
+        numericInput('LIE4', label = 'Lower Limit Event', value = 75),
+        numericInput('LVE4', label = 'Limit Event Window', value = 2),
+        numericInput('DNE1', label = 'Calendar Days Event', value=90),
+        numericInput('DNV1', label = 'Calendar Days Window', value=5)
       ),
       conditionalPanel(
         condition = "input.Function == '5 Factors'",
-        numericInput('LIE5', label = 'Lower Limit Event', value = 30),
-        numericInput('LVE5', label = 'Limit Event Window', value = 10),
-        numericInput('DNE2', label = 'Calendar Days Event', value=60),
-        numericInput('DNV2', label = 'Calendar Days Window', value=21)
+        numericInput('LIE5', label = 'Lower Limit Event', value = 75),
+        numericInput('LVE5', label = 'Limit Event Window', value = 2),
+        numericInput('DNE2', label = 'Calendar Days Event', value=90),
+        numericInput('DNV2', label = 'Calendar Days Window', value=5)
       ),
       conditionalPanel(
         h3("Volume events analysis"),
         condition = "input.Function == 'Global'",
-        numericInput('LSPE1G', label = 'Upper Limit Estimate 1', value = 55),
-        numericInput('LSPE2G', label = 'Upper Limit Estimate 2', value = 55),
+        numericInput('LSPE1G', label = 'Upper Limit Estimate 1', value = 35),
+        numericInput('LSPE2G', label = 'Upper Limit Estimate 2', value = 35),
         h3("Abnormal volumes"),
-        numericInput('LSPE11G', label = 'Upper Limit Estimate 1', value = 55),
+        numericInput('LSPE11G', label = 'Upper Limit Estimate 1', value = 35),
         numericInput('LIPE11G', label = 'Lower Limit Estimate 1', value = 11),
-        numericInput('LSPE22G', label = 'Upper Limit Estimate 2', value = 55),
+        numericInput('LSPE22G', label = 'Upper Limit Estimate 2', value = 35),
         numericInput('LIPE22G', label = 'Lower Limit Estimate 2', value = 11),
-        numericInput('LVEG', label = 'Limit Event Window', value = 10),
+        numericInput('LVEG', label = 'Limit Event Window', value = 2),
         h3("Return events analysis"),
-        numericInput('LIE1G', label = 'Lower Limit Event', value = 30),
-        numericInput('LVE1G', label = 'Limit Event Window', value = 10),
+        numericInput('LIE1G', label = 'Lower Limit Event', value = 75),
+        numericInput('LVE1G', label = 'Limit Event Window', value = 2),
         h3("Market model"),
-        numericInput('LIE2G', label = 'Lower Limit Event', value = 30),
-        numericInput('LVE2G', label = 'Limit Event Window', value = 10),
-        numericInput('VPEG', label = 'Pre-Event Window', value = 10),
+        numericInput('LIE2G', label = 'Lower Limit Event', value = 75),
+        numericInput('LVE2G', label = 'Limit Event Window', value = 2),
+        numericInput('VPEG', label = 'Pre-Event Window', value = 11),
         h3("3 Factors"),
-        numericInput('LIE3G', label = 'Lower Limit Event', value = 30),
-        numericInput('LVE3G', label = 'Limit Event Window', value = 10),
-        numericInput('DNEG', label = 'Calendar Days Event', value=60),
-        numericInput('DNVG', label = 'Calendar Days Window', value=21),
+        numericInput('LIE3G', label = 'Lower Limit Event', value = 75),
+        numericInput('LVE3G', label = 'Limit Event Window', value = 2),
+        numericInput('DNEG', label = 'Calendar Days Event', value=90),
+        numericInput('DNVG', label = 'Calendar Days Window', value=5),
         h3("4 Factors"),
-        numericInput('LIE4G', label = 'Lower Limit Event', value = 30),
-        numericInput('LVE4G', label = 'Limit Event Window', value = 10),
-        numericInput('DNE1G', label = 'Calendar Days Event', value=60),
-        numericInput('DNV1G', label = 'Calendar Days Window', value=21),
+        numericInput('LIE4G', label = 'Lower Limit Event', value = 75),
+        numericInput('LVE4G', label = 'Limit Event Window', value = 2),
+        numericInput('DNE1G', label = 'Calendar Days Event', value=90),
+        numericInput('DNV1G', label = 'Calendar Days Window', value=5),
         h3("5 Factors"),
-        numericInput('LIE5G', label = 'Lower Limit Event', value = 30),
-        numericInput('LVE5G', label = 'Limit Event Window', value = 10),
-        numericInput('DNE2G', label = 'Calendar Days Event', value=60),
-        numericInput('DNV2G', label = 'Calendar Days Window', value=21)
+        numericInput('LIE5G', label = 'Lower Limit Event', value = 75),
+        numericInput('LVE5G', label = 'Limit Event Window', value = 2),
+        numericInput('DNE2G', label = 'Calendar Days Event', value=90),
+        numericInput('DNV2G', label = 'Calendar Days Window', value=5)
       ),
       tags$hr(),
       actionButton("run", "Analyze"),
