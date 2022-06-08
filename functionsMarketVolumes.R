@@ -7,9 +7,9 @@
 
 AnalisisDirectorio <- function(directorioDatos,documentoEventos){
   
-  setwd(directorioDatos)
+  # setwd(directorioDatos)
   
-  EMPRESAS_MUESTRA <- read.table(documentoEventos,sep="\t",header=T,comment.char="",na.strings=c("","#N/A","N/A","NULL","-"),quote="",stringsAsFactors = FALSE,dec=".")
+  EMPRESAS_MUESTRA <- read.table(documentoEventos,sep="\t",header=T,comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),quote="",stringsAsFactors = FALSE,dec=".")
   EMPRESAS_MUESTRA <- data.frame(EMPRESAS=unique(EMPRESAS_MUESTRA[,1]))
   
   EMPRESAS_DIRECTORIO <- c(unique(list.files(directorioDatos,pattern = ".txt")))
@@ -51,7 +51,7 @@ analisisRentabilidad_NoUsar <- function(datos,datos_mercados="datos_mercados.txt
   ##CARGA DE DATOS DE MERCADO -----------------------------------------------------------------------------------
   #Lectura de datos del mercado
 
-  datos_todos_mercados <- read.table(datos_mercados,comment.char="",na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec=".")
+  datos_todos_mercados <- read.table(datos_mercados,comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".")
   #Con este for se pretende limpiar los datos de cada columna de mercado y crear un objeto R para cada mercado
     #df_inter es una variable intermedia que vamos pisando para coger cada mercado y al final de cada iteracion la asignamos a un objeto R con el nombre del mercado
         #El objetivo es tener diferentes objetos de R creados en diferentes iteraciones con los datos de cada mercado, para ser mas eficientes y no ir reevaluando el 
@@ -76,7 +76,7 @@ analisisRentabilidad_NoUsar <- function(datos,datos_mercados="datos_mercados.txt
   # FIN CARGA DE DATOS DE MERCADO --------------------------------------------------------------------------------
   
   ##CARGA DE DATOS DE EVENTOS Y EMPRESAS ------------------------------------------------------------------------------------
-  datos <- read.table(datos,sep="\t",header=T,comment.char="",na.strings=c("","#N/A","N/A","NULL","-"),quote="",stringsAsFactors = FALSE,dec=".")
+  datos <- read.table(datos,sep="\t",header=T,comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),quote="",stringsAsFactors = FALSE,dec=".")
   #Uniformamos el formato de fechas de toda la columna de eventos
   datos[,2] <- as.Date(datos[,2],format='%d/%m/%Y')
   #Ordenamos la matriz por orden alfab?tico de empresa y posteriormente por fecha de evento
@@ -101,7 +101,7 @@ analisisRentabilidad_NoUsar <- function(datos,datos_mercados="datos_mercados.txt
   empresa <- as.character(datos[1,1]) #Primera empresa de la matriz
   mercado <- datos[1,3] #Mercado de la primera empresa de la matriz
   #Carga,limpieza y adecuaci?n de los datos de la empresa
-  datos_empresa <- read.table(paste(directorio,'/',as.character(empresa),'.txt',sep = ''), comment.char="",na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec=".")
+  datos_empresa <- read.table(paste(directorio,'/',as.character(empresa),'.txt',sep = ''), comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".")
   colnames(datos_empresa) <- c("Date","PX_LAST","PX_VOLUME")
   datos_empresa <- datos_empresa[!is.na(datos_empresa[,"PX_LAST"]),]
   datos_empresa <- datos_empresa[!format(datos_empresa[,"Date"],format='%d/%m')==format(as.Date("01/01/2000",format='%d/%m/%Y'),'%d/%m'),]
@@ -113,7 +113,7 @@ analisisRentabilidad_NoUsar <- function(datos,datos_mercados="datos_mercados.txt
     if(i>=2 && datos[i,1] != datos[i-1,1]){  #este if sirve para cargar solo los datos de empresas que no se hayan cargado, sean distintas a la anterior fila...
               empresa <- datos[i,1]
               mercado <- datos[i,3]
-              datos_empresa <- read.table(paste(directorio,'/',as.character(empresa),'.txt',sep = ''), comment.char="",na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec=".")
+              datos_empresa <- read.table(paste(directorio,'/',as.character(empresa),'.txt',sep = ''), comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".")
               colnames(datos_empresa) <- c("Date","PX_LAST","PX_VOLUME")
               datos_empresa <- datos_empresa[!is.na(datos_empresa[,"PX_LAST"]),]
               datos_empresa <- datos_empresa[!format(datos_empresa[,"Date"],format='%d/%m')==format(as.Date("01/01/2000",format='%d/%m/%Y'),'%d/%m'),]
@@ -167,7 +167,7 @@ analisisRentabilidad_NoUsar <- function(datos,datos_mercados="datos_mercados.txt
 
 ANALISIS_DOC_VOLUMEN <- function(datos,LSPE1=95,LSPE2=95,format="%d/%m/%Y",directorio){
   
-  datos <- read.table(datos,sep="\t",header=T,comment.char="",na.strings=c("","#N/A","N/A","NULL","-"),quote="",stringsAsFactors = FALSE,dec=".")
+  datos <- read.table(datos,sep="\t",header=T,comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),quote="",stringsAsFactors = FALSE,dec=".")
   datos[,2] <- as.Date(datos[,2],format='%d/%m/%Y')
   datos <- datos[order(datos[,1],datos[,2],decreasing=F),]
   datos$Fecha_evento_def <- as.Date(NA,format=format)
@@ -180,19 +180,23 @@ ANALISIS_DOC_VOLUMEN <- function(datos,LSPE1=95,LSPE2=95,format="%d/%m/%Y",direc
   
   #Cargamos los datos para la primera empresa
   empresa <- datos[i,1]
-  datos_empresa <- read.table(paste(directorio,'/',as.character(empresa),'.txt',sep = ''), comment.char="",na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec=".")
+  datos_empresa <- read.table(paste(directorio,'/',as.character(empresa),'.txt',sep = ''), comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".")
   colnames(datos_empresa) <- c("Date","PX_LAST","PX_VOLUME")
   datos_empresa <- datos_empresa[!is.na(datos_empresa[,"PX_LAST"]),]
+  datos_empresa <- datos_empresa[!is.na(datos_empresa[,"PX_VOLUME"]),]
+
   datos_empresa<- datos_empresa[!format(datos_empresa[,"Date"],format='%d/%m')==format(as.Date("01/01/2000",format='%d/%m/%Y'),'%d/%m'),]
   datos_empresa<- datos_empresa[!format(datos_empresa[,"Date"],format='%d/%m')==format(as.Date("25/12/2000",format='%d/%m/%Y'),'%d/%m'),]
   datos_empresa$Date <- as.Date(datos_empresa$Date,format='%d/%m/%Y')
-  
+
+
   for(i in 1:nrow(datos)){
     if(i>=2 && datos[i,1] != datos[i-1,1]){  #este if sirve para cargar solo los datos cuando no se hayan cargado anteriormente (aumentar eficiencia del cÃ³digo)
       empresa <- datos[i,1]
-      datos_empresa <- read.table(paste(directorio,'/',as.character(empresa),'.txt',sep = ''), comment.char="",na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec=".")
+      datos_empresa <- read.table(paste(directorio,'/',as.character(empresa),'.txt',sep = ''), comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".")
       colnames(datos_empresa) <- c("Date","PX_LAST","PX_VOLUME")
       datos_empresa <- datos_empresa[!is.na(datos_empresa[,"PX_LAST"]),]
+      datos_empresa <- datos_empresa[!is.na(datos_empresa[,"PX_VOLUME"]),]
       datos_empresa<- datos_empresa[!format(datos_empresa[,"Date"],format='%d/%m')==format(as.Date("01/01/2000",format='%d/%m/%Y'),'%d/%m'),]
       datos_empresa<- datos_empresa[!format(datos_empresa[,"Date"],format='%d/%m')==format(as.Date("25/12/2000",format='%d/%m/%Y'),'%d/%m'),]
       datos_empresa$Date <- as.Date(datos_empresa$Date,format='%d/%m/%Y')}
@@ -240,7 +244,6 @@ ANALISIS_DOC_VOLUMEN <- function(datos,LSPE1=95,LSPE2=95,format="%d/%m/%Y",direc
       if(datos[i,1]==datos[i-1,1] && (datos$Fecha_LSPE1[i] - datos$Fecha_LSPE2[i-1])< 0){#La empresa es la misma que la fila anterior
         datos$ControlEvento[i]="ERRONEO"
       }else{datos$ControlEvento[i]="OK"}}}#final del segundo FOR para determinar finalmente quÃ© eventos son analizables
-  
   return(datos)
   
 }
@@ -263,10 +266,18 @@ VOLUMEN_MEDIA <- function(datos, fecha_evento, LSPE1 = 95,LIPE1=21, LSPE2=95,LIP
   window_mean1 <- mean(datos$PX_VOLUME[(event_day_data - LSPE1):(event_day_data - LIPE1)], na.rm = TRUE)
   window_mean2<- mean(datos$PX_VOLUME[(event_day_data + LIPE2):(event_day_data + LSPE2)], na.rm = TRUE)
   window_mean<-(window_mean1+window_mean2)/2
+
+  # Volum <- ifelse(is.na(window_mean),NA,datos$PX_VOLUME[(event_day_data - LSPE1):(event_day_data + LSPE2)] / window_mean)
+  if(is.na(window_mean)){
+    Volum = NA
+  } else {
+    Volum =datos$PX_VOLUME[(event_day_data - LSPE1):(event_day_data + LSPE2)] / window_mean
+  }
+
+  AV <- data.frame(Date = paste("Dia", -LSPE1:+LSPE2, sep=""),
+                   AAVolume = Volum)
   
-  AV <- data.frame(Date = paste("Dia", - LSPE1:+LSPE2, sep=""),
-                   AAVolume = datos$PX_VOLUME[(event_day_data - LSPE1):(event_day_data + LSPE2)] / window_mean)
-  
+  # AV <- na.omit(AV)
   #Nos conviene que devuelva los resultados no de forma cronolÃ³gica sino con el siguiente patrÃ³n
   # -95--> -21
   # 21--> 95
@@ -282,9 +293,9 @@ VOLUMEN_MEDIA <- function(datos, fecha_evento, LSPE1 = 95,LIPE1=21, LSPE2=95,LIP
   
 }
 
-ACUMULATIVA_VOLUMEN_MEDIA <- function(datos,LSPE1 = 95,LIPE1=21, LSPE2=95,LIPE2=21,LVE=10,format='%d/%m/%Y',directorio){
+ACUMULATIVA_VOLUMEN_MEDIA <- function(datos,LSPE1 = 95,LIPE1=21, LSPE2=95,LIPE2=21,LVE=10,format="%d/%m/%Y",directorio){
   
-  #analisis_array<-read.table(analysis_array,comment.char="",na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",
+  #analisis_array<-read.table(analysis_array,comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",
   #                          header=T,dec=".")
   
   analisis_array <- ANALISIS_DOC_VOLUMEN(datos,LSPE1=LSPE1,LSPE2=LSPE2,format=format,directorio = directorio)
@@ -295,11 +306,12 @@ ACUMULATIVA_VOLUMEN_MEDIA <- function(datos,LSPE1 = 95,LIPE1=21, LSPE2=95,LIPE2=
                                       paste("Dia", LIPE2:LSPE2, sep=""),
                                       paste("Dia", -LVE:LVE, sep="")))
   
+  
   i<-1
   b<-2
   
   for(i in 1:nrow(analisis_array)){
-    tabla_resultados[,b]<-VOLUMEN_MEDIA(datos=read.table(paste(directorio,'/',as.character(analisis_array[i,1]),'.txt',sep=""), comment.char="",na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec="."),
+    tabla_resultados[,b]<-VOLUMEN_MEDIA(datos=read.table(paste(directorio,'/',as.character(analisis_array[i,1]),'.txt',sep=""), comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec="."),
                                         fecha_evento=analisis_array[i,"Fecha_evento_def"],
                                         LSPE1 = LSPE1,LIPE1=LIPE1, LSPE2=LSPE2,LIPE2=LIPE2,LVE=LVE)[,2]
     b<-b+1
@@ -323,13 +335,15 @@ ACUMULATIVA_VOLUMEN_MEDIA <- function(datos,LSPE1 = 95,LIPE1=21, LSPE2=95,LIPE2=
 
 RENTABILIDAD_MERCADO <- function(empresa, mercado, fecha_evento, LIE = 170,datos_mercados="datos_mercados.txt", 
                                  format = '%d/%m/%Y',ventana_pre_evento=20,LVE=10,directorio){
-  datos_empresa <- read.table(paste(directorio,'/',as.character(empresa),'.txt',sep=""), comment.char="",na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="",header=T,dec=".")
+  datos_empresa <- read.table(paste(directorio,'/',as.character(empresa),'.txt',sep=""), comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".")
   colnames(datos_empresa) <- c("Date","PX_LAST","PX_VOLUME")
   #carga los valores de cotizacion de todos los mercados para todas las fechas
-  datos_todos_mercados <- read.table(datos_mercados,comment.char="",na.strings=c("","#N/A","N/A","NULL","-"),sep="\t",quote="", header=T,dec=".")
+  datos_todos_mercados <- read.table(datos_mercados,comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="", header=T,dec=".",stringsAsFactors = FALSE)
+  DATOSRENT<<-datos_todos_mercados
   
   #Se eliminan los valores NA para la columna de precios
   datos_empresa <- datos_empresa[!is.na(datos_empresa[,"PX_LAST"]),]
+
   #Se eliminan los valores de 1 enero y 25 diciembre si los hay, para todos los aÃ±os.
   datos_empresa <- datos_empresa[!format(datos_empresa[,"Date"],format='%d/%m')==format(as.Date("01/01/2000",format='%d/%m/%Y'),'%d/%m'),]
   datos_empresa <- datos_empresa[!format(datos_empresa[,"Date"],format='%d/%m')==format(as.Date("25/12/2000",format='%d/%m/%Y'),'%d/%m'),]
@@ -439,6 +453,7 @@ ACUMULATIVA_RENTABILIDAD_MERCADO <- function(analysis_array,LIE=170,LVE=10, vent
   analisis_array <- analisis_array[which(analisis_array$ControlEvento=="OK"),]
   analisis_array <- analisis_array[!is.na(analisis_array$Fecha_LIE),]
   analisis_array <- analisis_array[!is.na(analisis_array$Fecha_LVE),]
+
   tabla_resultados<-data.frame(dia=paste("Dia", -LIE:LVE, sep=""))
   i<-1
   b<-2
@@ -457,6 +472,5 @@ ACUMULATIVA_RENTABILIDAD_MERCADO <- function(analysis_array,LIE=170,LVE=10, vent
   
   colnames(tabla_resultados) <- c("dia", paste(analisis_array[,1], analisis_array[,2],analisis_array[,3],sep="||"))
   return(tabla_resultados)
-  
 }
 

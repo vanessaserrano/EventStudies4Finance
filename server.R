@@ -114,9 +114,14 @@ server <- function(input, output, session) {
       #                   mean(ACUM_VOL[1:nrow(ACUM_VOL),"Mean"]),
       #                   sd(ACUM_VOL[1:nrow(ACUM_VOL),"Mean"]))
       # https://rdrr.io/cran/nortest/man/lillie.test.html (mirar "Notes")
-      result <- lillie.test(ACUM_VOL[1:num,"Mean"])
-      ACUM_VOL[,"Normal"] <- ifelse(result$p.value > 0.05, "NORMAL", "NO NORMAL")
-      ACUM_VOL[,"p-value"] <- result$p.value
+      if (length(na.omit(ACUM_VOL[1:num,"Mean"]))>4){
+        result <- lillie.test(ACUM_VOL[1:num,"Mean"])
+        ACUM_VOL[,"Normal"] <- ifelse(result$p.value > 0.05, "NORMAL", "NO NORMAL")
+        ACUM_VOL[,"p-value"] <- result$p.value
+      } else {
+        ACUM_VOL[,"Normal"] <- "NORMAL"
+        ACUM_VOL[,"p-value"] <- NA
+      }
       if (ACUM_VOL[1 ,"Normal"] == "NORMAL") {
         ACUM_VOL[,"t-test"] <- ACUM_VOL[,"Mean - 1"]/ACUM_VOL[1 ,"St Des"]
       } else {
@@ -152,6 +157,7 @@ server <- function(input, output, session) {
         )
       ACUM_RENT[ACUM_RENT == 0] <- NA
       ACUM_RENT <- ACUM_RENT[,colSums(is.na(ACUM_RENT))<nrow(ACUM_RENT)]
+      
       vol2 <- ACUM_RENT
       vol2[,2:ncol(vol2)] <- abs(vol2[,2:ncol(vol2)])
       vol2[,"mean"] <- rowMeans(vol2[,2:ncol(vol2)], na.rm = TRUE)
@@ -164,13 +170,21 @@ server <- function(input, output, session) {
       ACUM_RENT[,"St Des"] <- sd(ACUM_RENT[1:num,"Mean"])
       
       # result <- shapiro.test(ACUM_RENT[1:nrow(ACUM_RENT),"Mean"])
-      result <- lillie.test(ACUM_RENT[1:num,"Mean"])
-      # resultVol <- shapiro.test(vol2[,"mean - average"])
-      resultVol <- lillie.test(vol2[1:num,"mean - average"])
-      vol2[,"Normal"] <- ifelse(resultVol$p.value > 0.05, "NORMAL", "NO NORMAL")
-      ACUM_RENT[,"Normal"] <- ifelse(result$p.value > 0.05, "NORMAL", "NO NORMAL")
-      vol2[,"p-value"] <- resultVol$p.value
-      ACUM_RENT[,"p-value"] <- result$p.value
+      if (length(na.omit(ACUM_RENT[1:num,"Mean"]))>4){
+        result <- lillie.test(ACUM_RENT[1:num,"Mean"])
+        # resultVol <- shapiro.test(vol2[,"mean - average"])
+        resultVol <- lillie.test(vol2[1:num,"mean - average"])
+        vol2[,"Normal"] <- ifelse(resultVol$p.value > 0.05, "NORMAL", "NO NORMAL")
+        ACUM_RENT[,"Normal"] <- ifelse(result$p.value > 0.05, "NORMAL", "NO NORMAL")
+        vol2[,"p-value"] <- resultVol$p.value
+        ACUM_RENT[,"p-value"] <- result$p.value
+      } else {
+        vol2[,"Normal"] <- "NORMAL"
+        ACUM_RENT[,"Normal"] <- "NORMAL"
+        vol2[,"p-value"] <- NA
+        ACUM_RENT[,"p-value"] <- NA
+      }
+      
       if (ACUM_RENT[1 ,"Normal"] == "NORMAL") {
         ACUM_RENT[,"t-test"] <- ACUM_RENT[,"Mean"]/ACUM_RENT[1 ,"St Des"]
       } else {
@@ -212,13 +226,22 @@ server <- function(input, output, session) {
       vol3[,"mean - average"] <- vol3[,"mean"] - vol3[,"Average"]
       ACUM_3F[,"St Des"] <- sd(ACUM_3F[1:num,"Mean"])
       # result <- shapiro.test(ACUM_3F[1:nrow(ACUM_3F),"Mean"])
-      result <- lillie.test(ACUM_3F[1:num,"Mean"])
-      # resultVol <- shapiro.test(vol3[,"mean - average"])
-      resultVol <- lillie.test(vol3[1:num,"mean - average"])
-      vol3[,"Normal"] <- ifelse(resultVol$p.value > 0.05, "NORMAL", "NO NORMAL")
-      ACUM_3F[,"Normal"] <- ifelse(result$p.value > 0.05, "NORMAL", "NO NORMAL")
-      vol3[,"p-value"] <- resultVol$p.value
-      ACUM_3F[,"p-value"] <- result$p.value
+      
+      if (length(na.omit(ACUM_3F[1:num,"Mean"]))>4){
+        result <- lillie.test(ACUM_3F[1:num,"Mean"])
+        # resultVol <- shapiro.test(vol3[,"mean - average"])
+        resultVol <- lillie.test(vol3[1:num,"mean - average"])
+        vol3[,"Normal"] <- ifelse(resultVol$p.value > 0.05, "NORMAL", "NO NORMAL")
+        ACUM_3F[,"Normal"] <- ifelse(result$p.value > 0.05, "NORMAL", "NO NORMAL")
+        vol3[,"p-value"] <- resultVol$p.value
+        ACUM_3F[,"p-value"] <- result$p.value
+      } else {
+        vol3[,"Normal"] <- "NORMAL"
+        ACUM_3F[,"Normal"] <- "NORMAL"
+        vol3[,"p-value"] <- NA
+        ACUM_3F[,"p-value"] <- NA
+      }
+      
       if (ACUM_3F[1 ,"Normal"] == "NORMAL") {
         ACUM_3F[,"t-test"] <- ACUM_3F[,"Mean"]/ACUM_3F[1 ,"St Des"]
       } else {
@@ -261,13 +284,21 @@ server <- function(input, output, session) {
       vol4[,"mean - average"] <- vol4[,"mean"] - vol4[,"Average"]
       ACUM_4F[,"St Des"] <- sd(ACUM_4F[1:num,"Mean"])
       # result <- shapiro.test(ACUM_4F[1:nrow(ACUM_4F),"Mean"])
-      result <- lillie.test(ACUM_4F[1:num,"Mean"])
-      # resultVol <- shapiro.test(vol4[,"mean - average"])
-      resultVol <- lillie.test(vol4[1:num,"mean - average"])
-      vol4[,"Normal"] <- ifelse(resultVol$p.value > 0.05, "NORMAL", "NO NORMAL")
-      ACUM_4F[,"Normal"] <- ifelse(result$p.value > 0.05, "NORMAL", "NO NORMAL")
-      vol4[,"p-value"] <- resultVol$p.value
-      ACUM_4F[,"p-value"] <- result$p.value
+      
+      if (length(na.omit(ACUM_4F[1:num,"Mean"]))>4){
+        result <- lillie.test(ACUM_4F[1:num,"Mean"])
+        # resultVol <- shapiro.test(vol4[,"mean - average"])
+        resultVol <- lillie.test(vol4[1:num,"mean - average"])
+        vol4[,"Normal"] <- ifelse(resultVol$p.value > 0.05, "NORMAL", "NO NORMAL")
+        ACUM_4F[,"Normal"] <- ifelse(result$p.value > 0.05, "NORMAL", "NO NORMAL")
+        vol4[,"p-value"] <- resultVol$p.value
+        ACUM_4F[,"p-value"] <- result$p.value
+      } else {
+        vol4[,"Normal"] <- "NORMAL"
+        ACUM_4F[,"Normal"] <- "NORMAL"
+        vol4[,"p-value"] <- NA
+        ACUM_4F[,"p-value"] <- NA
+      }
       if (ACUM_4F[1 ,"Normal"] == "NORMAL") {
         ACUM_4F[,"t-test"] <- ACUM_4F[,"Mean"]/ACUM_4F[1 ,"St Des"]
       } else {
@@ -338,14 +369,22 @@ server <- function(input, output, session) {
       vol5[,"mean - average"] <- vol5[,"mean"] - vol5[,"Average"]
       ACUM_5F[,"St Des"] <- sd(ACUM_5F[1:num,"Mean"])
       # result <- shapiro.test(ACUM_5F[1:nrow(ACUM_5F),"Mean"])
-      result <- lillie.test(ACUM_5F[1:num,"Mean"])
-      RESULTATKS <<- result
-      # resultVol <- shapiro.test(vol5[,"mean - average"])
-      resultVol <- lillie.test(vol5[1:num,"mean - average"])
-      vol5[,"Normal"] <- ifelse(resultVol$p.value > 0.05, "NORMAL", "NO NORMAL")
-      ACUM_5F[,"Normal"] <- ifelse(result$p.value > 0.05, "NORMAL", "NO NORMAL")
-      vol5[,"p-value"] <- resultVol$p.value
-      ACUM_5F[,"p-value"] <- result$p.value
+      
+      if (length(na.omit(ACUM_5F[1:num,"Mean"]))>4){
+        result <- lillie.test(ACUM_5F[1:num,"Mean"])
+        RESULTATKS <<- result
+        # resultVol <- shapiro.test(vol5[,"mean - average"])
+        resultVol <- lillie.test(vol5[1:num,"mean - average"])
+        vol5[,"Normal"] <- ifelse(resultVol$p.value > 0.05, "NORMAL", "NO NORMAL")
+        ACUM_5F[,"Normal"] <- ifelse(result$p.value > 0.05, "NORMAL", "NO NORMAL")
+        vol5[,"p-value"] <- resultVol$p.value
+        ACUM_5F[,"p-value"] <- result$p.value
+      } else {
+        vol5[,"Normal"] <- "NORMAL"
+        ACUM_5F[,"Normal"] <- "NORMAL"
+        vol5[,"p-value"] <- NA
+        ACUM_5F[,"p-value"] <- NA
+      }
       if (ACUM_5F[1 ,"Normal"] == "NORMAL") {
         ACUM_5F[,"t-test"] <- ACUM_5F[,"Mean"]/ACUM_5F[1 ,"St Des"]
       } else {
@@ -430,9 +469,15 @@ server <- function(input, output, session) {
       num <- (input$LSPE11G - input$LIPE11G + 1) + (input$LSPE22G - input$LIPE22G + 1)
       ACUM_VOL[,"St Des"] <- sd(ACUM_VOL[1:num,"Mean"])
       # result <- shapiro.test(ACUM_VOL[1:nrow(ACUM_VOL),"Mean"])
-      result <- lillie.test(ACUM_VOL[1:num,"Mean"])
-      ACUM_VOL[,"Normal"] <- ifelse(result$p.value > 0.05, "NORMAL", "NO NORMAL")
-      ACUM_VOL[,"p-value"] <- result$p.value
+     
+      if (length(na.omit(ACUM_VOL[1:num,"Mean"]))>4){
+        result <- lillie.test(ACUM_VOL[1:num,"Mean"])
+        ACUM_VOL[,"Normal"] <- ifelse(result$p.value > 0.05, "NORMAL", "NO NORMAL")
+        ACUM_VOL[,"p-value"] <- result$p.value
+      } else {
+        ACUM_VOL[,"Normal"] <- "NORMAL"
+        ACUM_VOL[,"p-value"] <- NA
+      }
       if (ACUM_VOL[1 ,"Normal"] == "NORMAL") {
         ACUM_VOL[,"t-test"] <- ACUM_VOL[,"Mean - 1"]/ACUM_VOL[1 ,"St Des"]
       } else {
@@ -467,13 +512,21 @@ server <- function(input, output, session) {
       ACUM_RENT[,"St Des"] <- sd(ACUM_RENT[1:num,"Mean"])
       
       # result <- shapiro.test(ACUM_RENT[1:nrow(ACUM_RENT),"Mean"])
-      result <- lillie.test(ACUM_RENT[1:num,"Mean"])
-      # resultVol <- shapiro.test(vol2[,"mean - average"])
-      resultVol <- lillie.test(vol2[1:num,"mean - average"])
-      vol2[,"Normal"] <- ifelse(resultVol$p.value > 0.05, "NORMAL", "NO NORMAL")
-      ACUM_RENT[,"Normal"] <- ifelse(result$p.value > 0.05, "NORMAL", "NO NORMAL")
-      vol2[,"p-value"] <- resultVol$p.value
-      ACUM_RENT[,"p-value"] <- result$p.value
+      
+      if (length(na.omit(ACUM_RENT[1:num,"Mean"]))>4){
+        result <- lillie.test(ACUM_RENT[1:num,"Mean"])
+        # resultVol <- shapiro.test(vol2[,"mean - average"])
+        resultVol <- lillie.test(vol2[1:num,"mean - average"])
+        vol2[,"Normal"] <- ifelse(resultVol$p.value > 0.05, "NORMAL", "NO NORMAL")
+        ACUM_RENT[,"Normal"] <- ifelse(result$p.value > 0.05, "NORMAL", "NO NORMAL")
+        vol2[,"p-value"] <- resultVol$p.value
+        ACUM_RENT[,"p-value"] <- result$p.value
+      } else {
+        vol2[,"Normal"] <- "NORMAL"
+        ACUM_RENT[,"Normal"] <- "NORMAL"
+        vol2[,"p-value"] <- NA
+        ACUM_RENT[,"p-value"] <- NA
+      }
       if (ACUM_RENT[1 ,"Normal"] == "NORMAL") {
         ACUM_RENT[,"t-test"] <- ACUM_RENT[,"Mean"]/ACUM_RENT[1 ,"St Des"]
       } else {
@@ -514,13 +567,21 @@ server <- function(input, output, session) {
       vol3[,"mean - average"] <- vol3[,"mean"] - vol3[,"Average"]
       ACUM_3F[,"St Des"] <- sd(ACUM_3F[1:num,"Mean"])
       # result <- shapiro.test(ACUM_3F[1:nrow(ACUM_3F),"Mean"])
-      result <- lillie.test(ACUM_3F[1:num,"Mean"])
-      # resultVol <- shapiro.test(vol3[,"mean - average"])
-      resultVol <- lillie.test(vol3[1:num,"mean - average"])
-      vol3[,"Normal"] <- ifelse(resultVol$p.value > 0.05, "NORMAL", "NO NORMAL")
-      ACUM_3F[,"Normal"] <- ifelse(result$p.value > 0.05, "NORMAL", "NO NORMAL")
-      vol3[,"p-value"] <- resultVol$p.value
-      ACUM_3F[,"p-value"] <- result$p.value
+      
+      if (length(na.omit(ACUM_3F[1:num,"Mean"]))>4){
+        result <- lillie.test(ACUM_3F[1:num,"Mean"])
+        # resultVol <- shapiro.test(vol3[,"mean - average"])
+        resultVol <- lillie.test(vol3[1:num,"mean - average"])
+        vol3[,"Normal"] <- ifelse(resultVol$p.value > 0.05, "NORMAL", "NO NORMAL")
+        ACUM_3F[,"Normal"] <- ifelse(result$p.value > 0.05, "NORMAL", "NO NORMAL")
+        vol3[,"p-value"] <- resultVol$p.value
+        ACUM_3F[,"p-value"] <- result$p.value
+      } else {
+        vol3[,"Normal"] <- "NORMAL"
+        ACUM_3F[,"Normal"] <- "NORMAL"
+        vol3[,"p-value"] <- NA
+        ACUM_3F[,"p-value"] <- NA
+      }
       if (ACUM_3F[1 ,"Normal"] == "NORMAL") {
         ACUM_3F[,"t-test"] <- ACUM_3F[,"Mean"]/ACUM_3F[1 ,"St Des"]
       } else {
@@ -560,13 +621,21 @@ server <- function(input, output, session) {
       vol4[,"mean - average"] <- vol4[,"mean"] - vol4[,"Average"]
       ACUM_4F[,"St Des"] <- sd(ACUM_4F[1:num,"Mean"])
       # result <- shapiro.test(ACUM_4F[1:nrow(ACUM_4F),"Mean"])
-      result <- lillie.test(ACUM_4F[1:num,"Mean"])
-      # resultVol <- shapiro.test(vol4[,"mean - average"])
-      resultVol <- lillie.test(vol4[1:num,"mean - average"])
-      vol4[,"Normal"] <- ifelse(resultVol$p.value > 0.05, "NORMAL", "NO NORMAL")
-      ACUM_4F[,"Normal"] <- ifelse(result$p.value > 0.05, "NORMAL", "NO NORMAL")
-      vol4[,"p-value"] <- resultVol$p.value
-      ACUM_4F[,"p-value"] <- result$p.value
+     
+      if (length(na.omit(ACUM_4F[1:num,"Mean"]))>4){
+        result <- lillie.test(ACUM_4F[1:num,"Mean"])
+        # resultVol <- shapiro.test(vol4[,"mean - average"])
+        resultVol <- lillie.test(vol4[1:num,"mean - average"])
+        vol4[,"Normal"] <- ifelse(resultVol$p.value > 0.05, "NORMAL", "NO NORMAL")
+        ACUM_4F[,"Normal"] <- ifelse(result$p.value > 0.05, "NORMAL", "NO NORMAL")
+        vol4[,"p-value"] <- resultVol$p.value
+        ACUM_4F[,"p-value"] <- result$p.value
+      } else {
+        vol4[,"Normal"] <- "NORMAL"
+        ACUM_4F[,"Normal"] <- "NORMAL"
+        vol4[,"p-value"] <- NA
+        ACUM_4F[,"p-value"] <- NA
+      }
       if (ACUM_4F[1 ,"Normal"] == "NORMAL") {
         ACUM_4F[,"t-test"] <- ACUM_4F[,"Mean"]/ACUM_4F[1 ,"St Des"]
       } else {
@@ -610,13 +679,21 @@ server <- function(input, output, session) {
       # result <- ks.test(ACUM_5F[1:num,"Mean"], pnorm,
       #                      mean(ACUM_5F[1:num,"Mean"]),
       #                      sd(ACUM_5F[1:num,"Mean"]))
-      result <- lillie.test(ACUM_5F[1:num,"Mean"])
-      # resultVol <- shapiro.test(vol5[,"mean - average"])
-      resultVol <- lillie.test(vol5[1:num,"mean - average"])
-      vol5[,"Normal"] <- ifelse(resultVol$p.value > 0.05, "NORMAL", "NO NORMAL")
-      ACUM_5F[,"Normal"] <- ifelse(result$p.value > 0.05, "NORMAL", "NO NORMAL")
-      vol5[,"p-value"] <- resultVol$p.value
-      ACUM_5F[,"p-value"] <- result$p.value
+      
+      if (length(na.omit(ACUM_5F[1:num,"Mean"]))>4){
+        result <- lillie.test(ACUM_5F[1:num,"Mean"])
+        # resultVol <- shapiro.test(vol5[,"mean - average"])
+        resultVol <- lillie.test(vol5[1:num,"mean - average"])
+        vol5[,"Normal"] <- ifelse(resultVol$p.value > 0.05, "NORMAL", "NO NORMAL")
+        ACUM_5F[,"Normal"] <- ifelse(result$p.value > 0.05, "NORMAL", "NO NORMAL")
+        vol5[,"p-value"] <- resultVol$p.value
+        ACUM_5F[,"p-value"] <- result$p.value
+      } else {
+        vol5[,"Normal"] <- "NORMAL"
+        ACUM_5F[,"Normal"] <- "NORMAL"
+        vol5[,"p-value"] <- NA
+        ACUM_5F[,"p-value"] <- NA
+      }
       if (ACUM_5F[1 ,"Normal"] == "NORMAL") {
         ACUM_5F[,"t-test"] <- ACUM_5F[,"Mean"]/ACUM_5F[1 ,"St Des"]
       } else {
@@ -913,7 +990,7 @@ server <- function(input, output, session) {
     &emsp;> Assets (t-1) of the company<br/>
     &emsp;> Assets (t-2) of the company<br/>
     <br/>
-    Market Data: 2 columns separated by tabulations<br/>
+    Market Data: At least 2 columns separated by tabulations<br/>
     &emsp;> Date (list of days in a period of time where the event is included, dd/mm/YY format)<br/>
     &emsp;> Index value in each day<br/>
     <br/>
