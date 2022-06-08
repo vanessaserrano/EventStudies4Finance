@@ -170,7 +170,7 @@ server <- function(input, output, session) {
       ACUM_RENT[,"St Des"] <- sd(ACUM_RENT[1:num,"Mean"])
       
       # result <- shapiro.test(ACUM_RENT[1:nrow(ACUM_RENT),"Mean"])
-      if (length(na.omit(ACUM_RENT[1:num,"Mean"]))>4){
+      if (length(na.omit(ACUM_RENT[1:num,"Mean"]))>4 & length(na.omit(vol2[1:num,"mean - average"]))>4){
         result <- lillie.test(ACUM_RENT[1:num,"Mean"])
         # resultVol <- shapiro.test(vol2[,"mean - average"])
         resultVol <- lillie.test(vol2[1:num,"mean - average"])
@@ -227,7 +227,7 @@ server <- function(input, output, session) {
       ACUM_3F[,"St Des"] <- sd(ACUM_3F[1:num,"Mean"])
       # result <- shapiro.test(ACUM_3F[1:nrow(ACUM_3F),"Mean"])
       
-      if (length(na.omit(ACUM_3F[1:num,"Mean"]))>4){
+      if (length(na.omit(ACUM_3F[1:num,"Mean"]))>4 & length(na.omit(vol3[1:num,"mean - average"]))>4){
         result <- lillie.test(ACUM_3F[1:num,"Mean"])
         # resultVol <- shapiro.test(vol3[,"mean - average"])
         resultVol <- lillie.test(vol3[1:num,"mean - average"])
@@ -285,7 +285,7 @@ server <- function(input, output, session) {
       ACUM_4F[,"St Des"] <- sd(ACUM_4F[1:num,"Mean"])
       # result <- shapiro.test(ACUM_4F[1:nrow(ACUM_4F),"Mean"])
       
-      if (length(na.omit(ACUM_4F[1:num,"Mean"]))>4){
+      if (length(na.omit(ACUM_4F[1:num,"Mean"]))>4 & length(na.omit(vol4[1:num,"mean - average"]))>4){
         result <- lillie.test(ACUM_4F[1:num,"Mean"])
         # resultVol <- shapiro.test(vol4[,"mean - average"])
         resultVol <- lillie.test(vol4[1:num,"mean - average"])
@@ -370,7 +370,7 @@ server <- function(input, output, session) {
       ACUM_5F[,"St Des"] <- sd(ACUM_5F[1:num,"Mean"])
       # result <- shapiro.test(ACUM_5F[1:nrow(ACUM_5F),"Mean"])
       
-      if (length(na.omit(ACUM_5F[1:num,"Mean"]))>4){
+      if (length(na.omit(ACUM_5F[1:num,"Mean"]))>4 & length(na.omit(vol5[1:num,"mean - average"]))>4){
         result <- lillie.test(ACUM_5F[1:num,"Mean"])
         RESULTATKS <<- result
         # resultVol <- shapiro.test(vol5[,"mean - average"])
@@ -513,7 +513,7 @@ server <- function(input, output, session) {
       
       # result <- shapiro.test(ACUM_RENT[1:nrow(ACUM_RENT),"Mean"])
       
-      if (length(na.omit(ACUM_RENT[1:num,"Mean"]))>4){
+      if (length(na.omit(ACUM_RENT[1:num,"Mean"]))>4 & length(na.omit(vol2[1:num,"mean - average"]))>4){
         result <- lillie.test(ACUM_RENT[1:num,"Mean"])
         # resultVol <- shapiro.test(vol2[,"mean - average"])
         resultVol <- lillie.test(vol2[1:num,"mean - average"])
@@ -568,7 +568,7 @@ server <- function(input, output, session) {
       ACUM_3F[,"St Des"] <- sd(ACUM_3F[1:num,"Mean"])
       # result <- shapiro.test(ACUM_3F[1:nrow(ACUM_3F),"Mean"])
       
-      if (length(na.omit(ACUM_3F[1:num,"Mean"]))>4){
+      if (length(na.omit(ACUM_3F[1:num,"Mean"]))>4 & length(na.omit(vol3[1:num,"mean - average"]))>4){
         result <- lillie.test(ACUM_3F[1:num,"Mean"])
         # resultVol <- shapiro.test(vol3[,"mean - average"])
         resultVol <- lillie.test(vol3[1:num,"mean - average"])
@@ -622,7 +622,7 @@ server <- function(input, output, session) {
       ACUM_4F[,"St Des"] <- sd(ACUM_4F[1:num,"Mean"])
       # result <- shapiro.test(ACUM_4F[1:nrow(ACUM_4F),"Mean"])
      
-      if (length(na.omit(ACUM_4F[1:num,"Mean"]))>4){
+      if (length(na.omit(ACUM_4F[1:num,"Mean"]))>4 & length(na.omit(vol4[1:num,"mean - average"]))>4){
         result <- lillie.test(ACUM_4F[1:num,"Mean"])
         # resultVol <- shapiro.test(vol4[,"mean - average"])
         resultVol <- lillie.test(vol4[1:num,"mean - average"])
@@ -680,7 +680,7 @@ server <- function(input, output, session) {
       #                      mean(ACUM_5F[1:num,"Mean"]),
       #                      sd(ACUM_5F[1:num,"Mean"]))
       
-      if (length(na.omit(ACUM_5F[1:num,"Mean"]))>4){
+      if (length(na.omit(ACUM_5F[1:num,"Mean"]))>4 & length(na.omit(vol5[1:num,"mean - average"]))>4){
         result <- lillie.test(ACUM_5F[1:num,"Mean"])
         # resultVol <- shapiro.test(vol5[,"mean - average"])
         resultVol <- lillie.test(vol5[1:num,"mean - average"])
