@@ -265,7 +265,7 @@ server <- function(input, output, session) {
     } else if (input$Function == '4 Factors') {
       ## 4 Factors ####
       ########################
-      ACUM_4F <- ACUMULATIVA_4F(margen_dias_previo= input$DNE1G ,margen_dias_post= input$DNV1G, LIE=input$LIE4G, LVE=input$LVE4G,
+      ACUM_4F <- ACUMULATIVA_4F(margen_dias_previo= input$DNE1G ,margen_dias_post= input$DNV1, LIE=input$LIE4, LVE=input$LVE4,
                                 datos_eventos=pathE$datapath,
                                 datos_muestra=pathM$datapath,
                                 datos_mercados=pathMK$datapath, 
@@ -347,7 +347,7 @@ server <- function(input, output, session) {
     } else if (input$Function == '5 Factors') {
       ## 5 Factors ####
       #####################
-      ACUM_5F <- ACUMULATIVA_5F(margen_dias_previo= input$DNE2G ,margen_dias_post= input$DNV2G, LIE=input$LIE5G, LVE=input$LVE5G,
+      ACUM_5F <- ACUMULATIVA_5F(margen_dias_previo= input$DNE2 ,margen_dias_post= input$DNV2, LIE=input$LIE5, LVE=input$LVE5,
                                 datos_eventos=pathE$datapath,
                                 datos_muestra=pathM$datapath,
                                 datos_mercados=pathMK$datapath, 

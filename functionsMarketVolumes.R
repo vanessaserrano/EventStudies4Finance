@@ -274,7 +274,7 @@ VOLUMEN_MEDIA <- function(datos, fecha_evento, LSPE1 = 95,LIPE1=21, LSPE2=95,LIP
     Volum =datos$PX_VOLUME[(event_day_data - LSPE1):(event_day_data + LSPE2)] / window_mean
   }
 
-  AV <- data.frame(Date = paste("Dia", -LSPE1:+LSPE2, sep=""),
+  AV <- data.frame(Date = paste("Day", -LSPE1:+LSPE2, sep=""),
                    AAVolume = Volum)
   
   # AV <- na.omit(AV)
@@ -283,9 +283,9 @@ VOLUMEN_MEDIA <- function(datos, fecha_evento, LSPE1 = 95,LIPE1=21, LSPE2=95,LIP
   # 21--> 95
   #-10--> 10
   
-  RESULTADOS <- data.frame(Date=c(paste("Dia", -LSPE1:-LIPE1, sep=""),
-                                  paste("Dia", LIPE2:LSPE2, sep=""),
-                                  paste("Dia", -LVE:LVE, sep="")))
+  RESULTADOS <- data.frame(Date=c(paste("Day", -LSPE1:-LIPE1, sep=""),
+                                  paste("Day", LIPE2:LSPE2, sep=""),
+                                  paste("Day", -LVE:LVE, sep="")))
   
   RESULTADOS$AV <- merge(x=RESULTADOS, y=AV, by = "Date", all.x = TRUE,sort=F)[,2]
   
@@ -302,9 +302,9 @@ ACUMULATIVA_VOLUMEN_MEDIA <- function(datos,LSPE1 = 95,LIPE1=21, LSPE2=95,LIPE2=
   #Saco de la tabla los eventos que no sean analizables por posibles efectos confundentes
   analisis_array <- analisis_array[which(analisis_array$ControlEvento=="OK"),]
   
-  tabla_resultados<-data.frame(Date=c(paste("Dia", -LSPE1:-LIPE1, sep=""),
-                                      paste("Dia", LIPE2:LSPE2, sep=""),
-                                      paste("Dia", -LVE:LVE, sep="")))
+  tabla_resultados<-data.frame(Date=c(paste("Day", -LSPE1:-LIPE1, sep=""),
+                                      paste("Day", LIPE2:LSPE2, sep=""),
+                                      paste("Day", -LVE:LVE, sep="")))
   
   
   i<-1
@@ -317,7 +317,7 @@ ACUMULATIVA_VOLUMEN_MEDIA <- function(datos,LSPE1 = 95,LIPE1=21, LSPE2=95,LIPE2=
     b<-b+1
   }
   
-  colnames(tabla_resultados) <- c("dia", paste(analisis_array[,1], as.character(analisis_array[,"Fecha_evento_def"]), sep="_"))
+  colnames(tabla_resultados) <- c("Day", paste(analisis_array[,1], as.character(analisis_array[,"Fecha_evento_def"]), sep="_"))
   return(tabla_resultados)
   
 }
@@ -436,7 +436,7 @@ RENTABILIDAD_MERCADO <- function(empresa, mercado, fecha_evento, LIE = 170,datos
   #Se genera la matriz resultado con los dias expresados "en relativo" y los valores de anormalidad que corresponden a la resta entre
   #los reales menos los estimados por el modelo
   
-  output <- data.frame(Date = paste("Dia", -LIE:LVE, sep=""),
+  output <- data.frame(Date = paste("Day", -LIE:LVE, sep=""),
                        AAR =  dfNuevos$Rent_empresa - dfNuevos$Estimacion_rent_empresa)
   
   return(output)
@@ -454,7 +454,7 @@ ACUMULATIVA_RENTABILIDAD_MERCADO <- function(analysis_array,LIE=170,LVE=10, vent
   analisis_array <- analisis_array[!is.na(analisis_array$Fecha_LIE),]
   analisis_array <- analisis_array[!is.na(analisis_array$Fecha_LVE),]
 
-  tabla_resultados<-data.frame(dia=paste("Dia", -LIE:LVE, sep=""))
+  tabla_resultados<-data.frame(Day=paste("Day", -LIE:LVE, sep=""))
   i<-1
   b<-2
   
@@ -470,7 +470,7 @@ ACUMULATIVA_RENTABILIDAD_MERCADO <- function(analysis_array,LIE=170,LVE=10, vent
     
   }
   
-  colnames(tabla_resultados) <- c("dia", paste(analisis_array[,1], analisis_array[,2],analisis_array[,3],sep="||"))
+  colnames(tabla_resultados) <- c("Day", paste(analisis_array[,1], analisis_array[,2],analisis_array[,3],sep="||"))
   return(tabla_resultados)
 }
 

@@ -929,6 +929,7 @@ CALCULO_MATRIZKPI <- function (MARKET, COMPANY, fecha_evento, inicio, fin,
   #Valores Estables --> Partimos de un documento que ya cuenta con una columna de rentabilidades diarias
   # RF <- read.table(valores_estables,comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".")
   RF <- read.table(valores_estables,na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".")
+  colnames(RF) <- c("Date", "RF")
   RF$Date <- as.Date(RF$Date, format= "%d/%m/%Y")
 
   MATRIZKPI$RF <- merge(x=data.frame(Date=MATRIZKPI[,1]), y=RF[,c("Date","RF")], by="Date",all.x=TRUE)[,2]
@@ -1006,7 +1007,7 @@ ESTIMACION_3F_EMPRESA <- function(fecha_evento,COMPANY,MARKET,
 
   #AJUSTE
   fila_evento_matriz <- which(MATRIZKPI$Date == as.Date(fecha_evento,format="%d/%m/%Y"))
-  MATRIZ_ESTIMACION <- data.frame(Dia = paste("Dia", -LIE:LVE, sep=""),
+  MATRIZ_ESTIMACION <- data.frame(Day = paste("Day", -LIE:LVE, sep=""),
                                   Date=MATRIZKPI$Date[(fila_evento_matriz - LIE):(fila_evento_matriz + LVE)])
 
   #Incluimos valores que teniamos en la MATRIZKPI y que van a servir para hacer el ajuste...
@@ -1080,7 +1081,7 @@ ESTIMACION_4F_EMPRESA <- function(fecha_evento,COMPANY,MARKET,
   
   #AJUSTE
   fila_evento_matriz <- which(MATRIZKPI$Date == as.Date(fecha_evento,format="%d/%m/%Y"))
-  MATRIZ_ESTIMACION <- data.frame(Dia = paste("Dia", -LIE:LVE, sep=""),
+  MATRIZ_ESTIMACION <- data.frame(Day = paste("Day", -LIE:LVE, sep=""),
                                   Date=MATRIZKPI$Date[(fila_evento_matriz - LIE):(fila_evento_matriz + LVE)])
   
   #Incluimos valores que teniamos en la MATRIZKPI y que van a servir para hacer el ajuste...
@@ -1150,7 +1151,7 @@ ESTIMACION_5F_EMPRESA <- function(fecha_evento,COMPANY,MARKET,
   
   #AJUSTE
   fila_evento_matriz <- which(MATRIZKPI$Date == as.Date(fecha_evento,format="%d/%m/%Y"))
-  MATRIZ_ESTIMACION <- data.frame(Dia = paste("Dia", -LIE:LVE, sep=""),
+  MATRIZ_ESTIMACION <- data.frame(Day = paste("Day", -LIE:LVE, sep=""),
                                   Date=MATRIZKPI$Date[(fila_evento_matriz - LIE):(fila_evento_matriz + LVE)])
   
   #Incluimos valores que teniamos en la MATRIZKPI y que van a servir para hacer el ajuste...
@@ -1205,7 +1206,7 @@ ACUMULATIVA_3F <- function( margen_dias_previo= 225,margen_dias_post= 50,LIE=170
   analisis_array <- analisis_array[which(analisis_array$ControlEvento == "OK"),]
   analisis_array <- analisis_array[!is.na(analisis_array$Fecha_LIE), ]
   analisis_array <- analisis_array[!is.na(analisis_array$Fecha_LVE), ]
-  MATRIZ_RESULTADOS <- data.frame(Dia = paste("Dia", -LIE:LVE, sep=""))
+  MATRIZ_RESULTADOS <- data.frame(Day = paste("Day", -LIE:LVE, sep=""))
   b=2
   for(i in 1:nrow(analisis_array)){
     # i es el contador de filas del documento que contiene los datos de la muestra a analizar
@@ -1231,7 +1232,7 @@ ACUMULATIVA_3F <- function( margen_dias_previo= 225,margen_dias_post= 50,LIE=170
                                                    porc_empr_SMB=porc_empr_SMB, porc_empr_HML=porc_empr_HML,directorio = directorio)[,"ARIT"]
     b=b+1
   }
-  colnames(MATRIZ_RESULTADOS) <- c("Dia",paste(analisis_array[,1], analisis_array[,2],sep="||"))
+  colnames(MATRIZ_RESULTADOS) <- c("Day",paste(analisis_array[,1], analisis_array[,2],sep="||"))
   return(MATRIZ_RESULTADOS)
 }
 
@@ -1254,8 +1255,8 @@ ACUMULATIVA_4F <- function(margen_dias_previo= 225,margen_dias_post= 50,
   analisis_array <- analisis_array[which(analisis_array$ControlEvento == "OK"),]
   analisis_array <- analisis_array[!is.na(analisis_array$Fecha_LIE), ]
   analisis_array <- analisis_array[!is.na(analisis_array$Fecha_LVE), ]
-  MATRIZ_RESULTADOS <- data.frame(Dia = paste("Dia", -LIE:LVE, sep=""))
-  MATRIZ_RESULTADOS <- data.frame(Dia = paste("Dia", -LIE:LVE, sep=""))
+  MATRIZ_RESULTADOS <- data.frame(Day = paste("Day", -LIE:LVE, sep=""))
+  MATRIZ_RESULTADOS <- data.frame(Day = paste("Day", -LIE:LVE, sep=""))
   b=2
   for(i in 1:nrow(analisis_array)){
     # i es el contador de filas del documento que contiene los datos de la muestra a analizar
@@ -1277,7 +1278,7 @@ ACUMULATIVA_4F <- function(margen_dias_previo= 225,margen_dias_post= 50,
                                                    porc_empr_SMB=porc_empr_SMB, porc_empr_HML=porc_empr_HML,porc_empr_UMD=porc_empr_UMD,directorio=directorio)[,"ARIT"]
     b=b+1
   }
-  colnames(MATRIZ_RESULTADOS) <- c("Dia",paste(analisis_array[,1], analisis_array[,2],sep="||"))
+  colnames(MATRIZ_RESULTADOS) <- c("Day",paste(analisis_array[,1], analisis_array[,2],sep="||"))
   return(MATRIZ_RESULTADOS)
 }
 
@@ -1299,7 +1300,7 @@ ACUMULATIVA_5F <- function(margen_dias_previo= 225,margen_dias_post= 50,
   analisis_array <- analisis_array[which(analisis_array$ControlEvento == "OK"),]
   analisis_array <- analisis_array[!is.na(analisis_array$Fecha_LIE), ]
   analisis_array <- analisis_array[!is.na(analisis_array$Fecha_LVE), ]
-  MATRIZ_RESULTADOS <- data.frame(Dia = paste("Dia", -LIE:LVE, sep=""))
+  MATRIZ_RESULTADOS <- data.frame(Day = paste("Day", -LIE:LVE, sep=""))
   b=2
   for(i in 1:nrow(analisis_array)){
     # i es el contador de filas del documento que contiene los datos de la muestra a analizar
@@ -1320,6 +1321,6 @@ ACUMULATIVA_5F <- function(margen_dias_previo= 225,margen_dias_post= 50,
                                                    porc_empr_SMB=porc_empr_SMB, porc_empr_HML=porc_empr_HML,porc_empr_RMW=porc_empr_RMW,porc_empr_CMA=porc_empr_CMA,directorio = directorio)[,"ARIT"]
     b=b+1
   }
-  colnames(MATRIZ_RESULTADOS) <- c("Dia",paste(analisis_array[,1], analisis_array[,2],sep="||"))
+  colnames(MATRIZ_RESULTADOS) <- c("Day",paste(analisis_array[,1], analisis_array[,2],sep="||"))
   return(MATRIZ_RESULTADOS)
 }
