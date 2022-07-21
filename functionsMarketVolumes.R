@@ -10,6 +10,7 @@ AnalisisDirectorio <- function(directorioDatos,documentoEventos){
   # setwd(directorioDatos)
   
   EMPRESAS_MUESTRA <- read.table(documentoEventos,sep="\t",header=T,comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),quote="",stringsAsFactors = FALSE,dec=".")
+  colnames(EMPRESAS_MUESTRA) <- c("COMPANY","DATE","MARKET")
   EMPRESAS_MUESTRA <- data.frame(EMPRESAS=unique(EMPRESAS_MUESTRA[,1]))
   
   EMPRESAS_DIRECTORIO <- c(unique(list.files(directorioDatos,pattern = ".txt")))
@@ -52,6 +53,7 @@ analisisRentabilidad_NoUsar <- function(datos,datos_mercados="datos_mercados.txt
   #Lectura de datos del mercado
 
   datos_todos_mercados <- read.table(datos_mercados,comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".")
+  colnames(datos_todos_mercados)[1] <- "Date"
   #Con este for se pretende limpiar los datos de cada columna de mercado y crear un objeto R para cada mercado
     #df_inter es una variable intermedia que vamos pisando para coger cada mercado y al final de cada iteracion la asignamos a un objeto R con el nombre del mercado
         #El objetivo es tener diferentes objetos de R creados en diferentes iteraciones con los datos de cada mercado, para ser mas eficientes y no ir reevaluando el 
@@ -339,6 +341,7 @@ RENTABILIDAD_MERCADO <- function(empresa, mercado, fecha_evento, LIE = 170,datos
   colnames(datos_empresa) <- c("Date","PX_LAST","PX_VOLUME")
   #carga los valores de cotizacion de todos los mercados para todas las fechas
   datos_todos_mercados <- read.table(datos_mercados,comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="", header=T,dec=".",stringsAsFactors = FALSE)
+  colnames(datos_todos_mercados)[1] <- "Date"
   DATOSRENT<<-datos_todos_mercados
   
   #Se eliminan los valores NA para la columna de precios

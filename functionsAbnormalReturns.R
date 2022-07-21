@@ -14,6 +14,7 @@ rentabilidadMercado <- function(archivoDatosMercado, columna){ #Calcula la renta
   #archivoDatosMercado="datos_mercados.txt"
   #columna="IGBM"
   datos <-read.table(archivoDatosMercado, na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".")
+  colnames(datos)[1] <- "Date"
   #Elimino los valores que son NA
   datos <- datos[!is.na(datos[,eval(columna)]),]
   datos$Date <- as.Date(datos$Date, format="%d/%m/%Y")
@@ -28,12 +29,14 @@ comprobacionesFactores <- function (documentoEventos,
   setwd(directorioDatos)
   # DATOS_EVENTOS <- read.table(documentoEventos,sep="\t",header=T,comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),quote="",stringsAsFactors = FALSE,dec=".")
   DATOS_EVENTOS <- read.table(documentoEventos,sep="\t",header=T,na.strings=c("","#N/A","N/A","NULL","-","NA"),quote="",stringsAsFactors = FALSE,dec=".")
+  colnames(DATOS_EVENTOS) <- c("COMPANY","DATE","MARKET")
   # DATOS_MUESTRA <- read.table(datos_muestra,sep="\t",header=T,comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),quote="",stringsAsFactors = FALSE,dec=".")
   DATOS_MUESTRA <- read.table(datos_muestra,sep="\t",header=T,na.strings=c("","#N/A","N/A","NULL","-","NA"),quote="",stringsAsFactors = FALSE,dec=".")
   colnames(DATOS_MUESTRA) <- c("COMPANY","TICKER","MARKET",'YEAR',"STARTING_PRICE_YEAR(t-1)","CLOSING_PRICE_YEAR(t-1)","MARKET_CAP(t-1)",
                                "TOTAL_EQUITY(t-1)","REVENUES(t-1)","COGS(t-1)","SG&A(t-1)","INTEREST_EXPENSE(t-1)","ASSETS(t-1)","ASSETS(t-2)")
   # DATOS_MERCADOS <- read.table(datos_mercados,sep="\t",header=T,comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),quote="",stringsAsFactors = FALSE,dec=".")
   DATOS_MERCADOS <- read.table(datos_mercados,sep="\t",header=T,na.strings=c("","#N/A","N/A","NULL","-","NA"),quote="",stringsAsFactors = FALSE,dec=".")
+  colnames(DATOS_MERCADOS)[1] <- "Date"
   EMPRESAS_DIRECTORIO <- data.frame(EMPRESAS = unique(list.files(directorioDatos,pattern = ".txt")))
   RESULTADO <- data.frame(EMPRESA=unique(DATOS_EVENTOS$COMPANY), EN_DATOS_MUESTRA=NA, EN_DIRECTORIO =NA)
   
@@ -73,6 +76,7 @@ analisisRentabilidad <- function(datos,datos_mercados="datos_mercados.txt", form
   
   # datos_todos_mercados <- read.table(datos_mercados,comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".")
   datos_todos_mercados <- read.table(datos_mercados,na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".",stringsAsFactors = FALSE)
+  colnames(datos_todos_mercados)[1] <- "Date"
   #Con este for se pretende limpiar los datos de cada columna de mercado y crear un objeto R para cada mercado
   #df_inter es una variable intermedia que vamos pisando para coger cada mercado y al final de cada iteracion la asignamos a un objeto R con el nombre del mercado
   #El objetivo es tener diferentes objetos de R creados en diferentes iteraciones con los datos de cada mercado, para ser mas eficientes y no ir reevaluando el 
@@ -916,6 +920,7 @@ CALCULO_MATRIZKPI <- function (MARKET, COMPANY, fecha_evento, inicio, fin,
   #mercado: mercado donde cotiza la EMPRESA
   # datos <- read.table(datos_mercados, comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".")
   datos <- read.table(datos_mercados, na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".")
+  colnames(datos)[1] <- "Date"
   dia1 = as.Date(inicio,format='%d/%m/%Y')
   dia2 = as.Date(fin, format='%d/%m/%Y')
   MATRIZKPI <- data.frame(Date=seq(dia1,dia2,by=1))
@@ -992,6 +997,7 @@ ESTIMACION_3F_EMPRESA <- function(fecha_evento,COMPANY,MARKET,
   #EMPRESA
   # datos_EMPRESA <- read.table(paste(directorio,'/',COMPANY,'.txt',sep=''), comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".")
   datos_EMPRESA <- read.table(paste0(directorio,'/',COMPANY,'.txt'), na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".")
+  colnames(datos_EMPRESA) <- c("Date","PX_LAST","PX_VOLUME")
   datos_EMPRESA$Date <- as.Date(datos_EMPRESA$Date, format="%d/%m/%Y")
   #Establezco la fila donde esta el evento dentro del doc de la EMPRESA
   fila_evento <- which(datos_EMPRESA$Date == as.Date(fecha_evento,format="%d/%m/%Y"))
@@ -1059,6 +1065,7 @@ ESTIMACION_4F_EMPRESA <- function(fecha_evento,COMPANY,MARKET,
   #EMPRESA
   # datos_EMPRESA <- read.table(paste(directorio,'/',COMPANY,'.txt',sep=""), comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".")
   datos_EMPRESA <- read.table(paste(directorio,'/',COMPANY,'.txt',sep=""), na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".")
+  colnames(datos_EMPRESA) <- c("Date","PX_LAST","PX_VOLUME")
   datos_EMPRESA$Date <- as.Date(datos_EMPRESA$Date, format="%d/%m/%Y")
   #Establezco la fila donde esta el evento dentro del doc de la EMPRESA
   fila_evento <- which(datos_EMPRESA$Date == as.Date(fecha_evento,format="%d/%m/%Y"))
@@ -1129,6 +1136,7 @@ ESTIMACION_5F_EMPRESA <- function(fecha_evento,COMPANY,MARKET,
   #EMPRESA
   # datos_EMPRESA <- read.table(paste(directorio,'/',COMPANY,'.txt',sep=""), comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".")
   datos_EMPRESA <- read.table(paste(directorio,'/',COMPANY,'.txt',sep=""), na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".")
+  colnames(datos_EMPRESA) <- c("Date","PX_LAST","PX_VOLUME")
   datos_EMPRESA$Date <- as.Date(datos_EMPRESA$Date, format="%d/%m/%Y")
   #Establezco la fila donde esta el evento dentro del doc de la EMPRESA
   fila_evento <- which(datos_EMPRESA$Date == as.Date(fecha_evento,format="%d/%m/%Y"))
