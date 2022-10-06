@@ -209,8 +209,9 @@ EMPRESAS_SMB <- function(datos_eventos,datos_muestra,fecha_evento,MARKET,porc_em
   datos_muestra <- datos_muestra[datos_muestra$YEAR==(as.numeric(YEAR)),] #Eliminamos todos los que no sean del año contable anterior al año del evento
   datos_muestra <- datos_muestra[!is.na(datos_muestra[,"MARKET_CAP(t-1)"]),] #Eliminamos todos los que no tienen datos
   datos_muestra <- datos_muestra[datos_muestra$MARKET==MARKET,] #Eliminamos todos los que no sean de ese mercado
-  #Cogemos solo las empresas que han tenido eventos en el mismo año que el evento que analizamos
-  datos_muestra <- datos_muestra[datos_muestra$COMPANY %in% datos_eventos$COMPANY,]
+  # ELIMINAR (USAR TODAS LAS EMPRESAS PARA CALCULAR FACTORES)
+  # Cogemos solo las empresas que han tenido eventos en el mismo año que el evento que analizamos
+  # datos_muestra <- datos_muestra[datos_muestra$COMPANY %in% datos_eventos$COMPANY,]
   #Calculo de la matriz de EMPRESAs con valores de capitalización
   CRIT_CAP <- data.frame(EMPRESA=datos_muestra$COMPANY,CAP=datos_muestra$MARKET_CAP)
   #Ordenación del dataframe en descendente
@@ -248,8 +249,9 @@ EMPRESAS_HML <- function(datos_muestra="datos_muestra.txt",datos_eventos="datos_
   datos_muestra <- datos_muestra[datos_muestra$MARKET==MARKET,] #Eliminamos todos los que no sean de ese mercado
   datos_muestra <- datos_muestra[datos_muestra[,"MARKET_CAP(t-1)"]!=0,] #Eliminamos todos los que tengan MARKET_CAP igual a 0
   datos_muestra <- datos_muestra[datos_muestra[,"TOTAL_EQUITY(t-1)"]>=0,] #Eliminamos todos los que tengan TOTAL_EQUITY negativo
-  #Cogemos solo las empresas que han tenido eventos en el mismo año que el evento que analizamos
-  datos_muestra <- datos_muestra[datos_muestra$COMPANY %in% datos_eventos$COMPANY,]
+  # ELIMINAR (USAR TODAS LAS EMPRESAS PARA CALCULAR FACTORES)
+  # Cogemos solo las empresas que han tenido eventos en el mismo año que el evento que analizamos
+  # datos_muestra <- datos_muestra[datos_muestra$COMPANY %in% datos_eventos$COMPANY,]
   #Calculo de índice PatrimonioNeto/Capitalización
   datos_muestra$NET_EQUITYCAP <- datos_muestra$"TOTAL_EQUITY(t-1)"/datos_muestra$"MARKET_CAP(t-1)" 
   #Calculo de la matriz de EMPRESAs con valores de capitalización
@@ -287,8 +289,9 @@ EMPRESAS_RMW <- function(fecha_evento, MARKET,datos_muestra="datos_muestra.txt",
   datos_muestra <- datos_muestra[!is.na(datos_muestra[,"TOTAL_EQUITY(t-1)"]),] #Eliminamos todos los que no tienen datos
   datos_muestra <- datos_muestra[datos_muestra$MARKET==MARKET,] #Eliminamos todos los que no sean de ese mercado
   datos_muestra <- datos_muestra[datos_muestra[,"TOTAL_EQUITY(t-1)"]>0,] #Eliminamos todos los que tengan TOTAL_EQUITY negativo o cero
-  #Cogemos solo las empresas que han tenido eventos en el mismo año que el evento que analizamos
-  datos_muestra <- datos_muestra[datos_muestra$COMPANY %in% datos_eventos$COMPANY,]
+  # ELIMINAR (USAR TODAS LAS EMPRESAS PARA CALCULAR FACTORES)
+  # Cogemos solo las empresas que han tenido eventos en el mismo año que el evento que analizamos
+  # datos_muestra <- datos_muestra[datos_muestra$COMPANY %in% datos_eventos$COMPANY,]
   #Calculo de Margen Operativo
   datos_muestra$OP <- (datos_muestra$`REVENUES(t-1)` - datos_muestra$`COGS(t-1)` + datos_muestra$`INTEREST_EXPENSE(t-1)` - datos_muestra$`SG&A(t-1)`)/datos_muestra$`TOTAL_EQUITY(t-1)`
   #Calculo de la matriz de EMPRESAs con valores de crit. margen operativo
@@ -321,8 +324,9 @@ EMPRESAS_CMA <- function(fecha_evento, MARKET, datos_muestra="datos_muestra.txt"
   datos_muestra <- datos_muestra[!is.na(datos_muestra[,"ASSETS(t-2)"]),] #Eliminamos todos los que no tienen datos
   datos_muestra <- datos_muestra[datos_muestra$MARKET==MARKET,] #Eliminamos todos los que no sean de ese mercado
   datos_muestra <- datos_muestra[datos_muestra[,"ASSETS(t-2)"]!=0,] #Eliminamos todos los que tengan ASSETS(t-2) igual a cero
+  # ELIMINAR (USAR TODAS LAS EMPRESAS PARA CALCULAR FACTORES)
   #Cogemos solo las empresas que han tenido eventos en el mismo año que el evento que analizamos
-  datos_muestra <- datos_muestra[datos_muestra$COMPANY %in% datos_eventos$COMPANY,]
+  # datos_muestra <- datos_muestra[datos_muestra$COMPANY %in% datos_eventos$COMPANY,]
   #Calculo del crecimiento y la inversión
   datos_muestra$CREC <- datos_muestra$"ASSETS(t-1)" - datos_muestra$"ASSETS(t-2)"
   datos_muestra$INV <- datos_muestra$CREC / datos_muestra$"ASSETS(t-2)"
@@ -357,8 +361,9 @@ EMPRESAS_UMD <- function(fecha_evento, MARKET, datos_muestra="datos_muestra.txt"
     datos_muestra <- datos_muestra[!is.na(datos_muestra[,"STARTING_PRICE_YEAR(t-1)"]),] #Eliminamos todos los que no tienen datos
     datos_muestra <- datos_muestra[datos_muestra$MARKET==MARKET,] #Eliminamos todos los que no sean de ese mercado
     datos_muestra <- datos_muestra[datos_muestra[,"STARTING_PRICE_YEAR(t-1)"]!=0,]
-    #Cogemos solo las empresas que han tenido eventos en el mismo año que el evento que analizamos
-    datos_muestra <- datos_muestra[datos_muestra$COMPANY %in% datos_eventos$COMPANY,]
+    # ELIMINAR (USAR TODAS LAS EMPRESAS PARA CALCULAR FACTORES)
+    # Cogemos solo las empresas que han tenido eventos en el mismo año que el evento que analizamos
+    # datos_muestra <- datos_muestra[datos_muestra$COMPANY %in% datos_eventos$COMPANY,]
     #Calculo de % VARIACION ANUAL
     datos_muestra$INTERVAR <- (datos_muestra$"CLOSING_PRICE_YEAR(t-1)" - datos_muestra$`STARTING_PRICE_YEAR(t-1)`) / datos_muestra$`STARTING_PRICE_YEAR(t-1)` 
     #Calculo de la matriz de EMPRESAs con valores de capitalización
