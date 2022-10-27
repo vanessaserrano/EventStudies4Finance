@@ -28,9 +28,27 @@ est_corrado <-function(data, col=NULL) {
   resCorrado <- as.data.frame(resCorrado)
   promedio <- rowMeans(resCorrado, na.rm = TRUE) - mean(colMeans(resCorrado, na.rm = TRUE))
   est <- sqrt(sum((promedio^2)/nrow(resCorrado)))
-  
   return(list(promedio, est))
 }
+
+est_corrado92 <-function(data, col) {
+  Corrado <- data[,2:col]
+  rs <- rank(Corrado[, 1], na.last = "keep", ties.method = "average")
+  U <- rs/(1+length(na.omit(rs)))
+  resCorrado <- matrix(U)
+  for (i in 2:ncol(Corrado)) {
+    rs <- rank(Corrado[, i], na.last = "keep", ties.method = "average")
+    U <- rs/(1+length(na.omit(rs)))
+    resCorrado <- cbind(resCorrado, U)
+  }
+  resCorrado <- as.data.frame(resCorrado)
+  resCorradoEXT <<- resCorrado
+  t3den <- sqrt(mean((rowSums(resCorrado-0.5)/sqrt(rowSums(!is.na(resCorrado))))^2))
+  t3num <- rowSums(resCorrado-0.5)/(sqrt(rowSums(!is.na(resCorrado))))
+
+  return(list(t3num, t3den))
+}
+
 
 
 server <- function(input, output, session) {
