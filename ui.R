@@ -3,16 +3,18 @@ ui <- fluidPage(
   tags$head(tags$style(
     HTML(
       "
-      @import url('//fonts.googleapis.com/css?family=Lobster|Cabin:400,700');
-      
       h1 {
-      font-family: 'Lobster', cursive;
+      font-family:'Source Sans Pro','Helvetica Neue',Helvetica,Arial,sans-serif;
       font-weight: 500;
       line-height: 1.1;
       color: #000000;
       }
-      
-      "
+      body {
+      font-family:'Source Sans Pro','Helvetica Neue',Helvetica,Arial,sans-serif;
+      color:back;
+      }
+       .modal1 .modal-header {background-color:white; text-align:center; font-weight:bold
+       }"
     )
     )),
   
@@ -70,8 +72,7 @@ ui <- fluidPage(
           'Market model',
           '3 Factors',
           '4 Factors',
-          '5 Factors', 
-          'Global'
+          '5 Factors'
         ),
         selected = 1,
         multiple = FALSE
@@ -122,40 +123,6 @@ ui <- fluidPage(
         numericInput('DNE2', label = 'Calendar Days Event', value=90),
         numericInput('DNV2', label = 'Calendar Days Window', value=5)
       ),
-      conditionalPanel(
-        h3("Volume events analysis"),
-        condition = "input.Function == 'Global'",
-        numericInput('LSPE1G', label = 'Upper Limit Estimate 1', value = 35),
-        numericInput('LSPE2G', label = 'Upper Limit Estimate 2', value = 35),
-        h3("Abnormal volumes"),
-        numericInput('LSPE11G', label = 'Upper Limit Estimate 1', value = 35),
-        numericInput('LIPE11G', label = 'Lower Limit Estimate 1', value = 11),
-        numericInput('LSPE22G', label = 'Upper Limit Estimate 2', value = 35),
-        numericInput('LIPE22G', label = 'Lower Limit Estimate 2', value = 11),
-        numericInput('LVEG', label = 'Limit Event Window', value = 2),
-        h3("Return events analysis"),
-        numericInput('LIE1G', label = 'Lower Limit Event', value = 75),
-        numericInput('LVE1G', label = 'Limit Event Window', value = 2),
-        h3("Market model"),
-        numericInput('LIE2G', label = 'Lower Limit Event', value = 75),
-        numericInput('LVE2G', label = 'Limit Event Window', value = 2),
-        numericInput('VPEG', label = 'Pre-Event Window', value = 11),
-        h3("3 Factors"),
-        numericInput('LIE3G', label = 'Lower Limit Event', value = 75),
-        numericInput('LVE3G', label = 'Limit Event Window', value = 2),
-        numericInput('DNEG', label = 'Calendar Days Event', value=90),
-        numericInput('DNVG', label = 'Calendar Days Window', value=5),
-        h3("4 Factors"),
-        numericInput('LIE4G', label = 'Lower Limit Event', value = 75),
-        numericInput('LVE4G', label = 'Limit Event Window', value = 2),
-        numericInput('DNE1G', label = 'Calendar Days Event', value=90),
-        numericInput('DNV1G', label = 'Calendar Days Window', value=5),
-        h3("5 Factors"),
-        numericInput('LIE5G', label = 'Lower Limit Event', value = 75),
-        numericInput('LVE5G', label = 'Limit Event Window', value = 2),
-        numericInput('DNE2G', label = 'Calendar Days Event', value=90),
-        numericInput('DNV2G', label = 'Calendar Days Window', value=5)
-      ),
       tags$hr(),
       actionButton("run", "Analyze"),
       downloadButton('dwn', label = 'Save'),
@@ -163,36 +130,8 @@ ui <- fluidPage(
     ),
     mainPanel(
       tags$style(
-        "#text1 {
-        @import url('//fonts.googleapis.com/css?family=Lobster|Cabin:400,700');
-        
+        "body {
         font-size:15px;
-        color:back;
-        font-family: 'Lobster', cursive;
-        }"),
-      tags$style(
-        "#text2 {
-        @import url('//fonts.googleapis.com/css?family=Lobster|Cabin:400,700');
-        
-        font-size:15px;
-        color:back;
-        font-family: 'Lobster', cursive;
-        }"),
-      tags$style(
-        "#text3 {
-        @import url('//fonts.googleapis.com/css?family=Lobster|Cabin:400,700');
-        
-        font-size:15px;
-        color:back;
-        font-family: 'Lobster', cursive;
-        }"),
-      tags$style(
-        "#text4 {
-        @import url('//fonts.googleapis.com/css?family=Lobster|Cabin:400,700');
-        
-        font-size:15px;
-        color:back;
-        font-family: 'Lobster', cursive;
         }"),
       tabsetPanel(
         tabPanel('Instructions',

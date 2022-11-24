@@ -920,7 +920,7 @@ CALCULO_MATRIZKPI <- function (MARKET, COMPANY, fecha_evento, inicio, fin,
                                porc_empr_UMD=0.3,
                                porc_empr_RMW=0.3, 
                                porc_empr_CMA=0.3,
-                               directorio){
+                               directorio, FD=NULL){
   #Valores estables: valores de un mercado de bajo riesgo, por ejemplo letras del tesoro
   #mercado: mercado donde cotiza la EMPRESA
   # datos <- read.table(datos_mercados, comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".")
@@ -950,28 +950,34 @@ CALCULO_MATRIZKPI <- function (MARKET, COMPANY, fecha_evento, inicio, fin,
   colnames(EMP)<-c("Date","PX_LAST","PX_VOLUME","RE")
   MATRIZKPI$RE <- merge(x=MATRIZKPI["Date"], y=EMP[,c("Date","RE")], by="Date",all.x=TRUE)[,2]
 
+  if (is.null(FD)){
+      #RM-Rf
+      MATRIZKPI$RMRF <- MATRIZKPI$RM - MATRIZKPI$RF
+    
+      #Añadimos el conjunto SMB,HML y UMD
+      #SMB
+      SMB <- CALCULO_SMB(datos_muestra=datos_muestra, datos_eventos=datos_eventos, fecha_evento=fecha_evento,MARKET=MARKET , inicio, fin,porc_empr_SMB=porc_empr_SMB,porc_empr_RMW=porc_empr_RMW,porc_empr_HML=porc_empr_HML,porc_empr_CMA=porc_empr_CMA,directorio=directorio)
+      MATRIZKPI$SMB <- merge(x=MATRIZKPI["Date"], y=SMB[,c("Date","SMB")], by="Date",all.x=TRUE)[,2]
+      #HML
+      HML <- CALCULO_HML(datos_muestra=datos_muestra, datos_eventos=datos_eventos, fecha_evento=fecha_evento,MARKET=MARKET , inicio, fin,porc_empr_HML=porc_empr_HML,porc_empr_SMB=porc_empr_SMB,directorio=directorio)
+      MATRIZKPI$HML <- merge(x=MATRIZKPI["Date"], y=HML[,c("Date","HML")], by="Date",all.x=TRUE)[,2]
+      #UMD
+      UMD <- CALCULO_UMD(datos_muestra=datos_muestra, datos_eventos=datos_eventos, fecha_evento=fecha_evento,MARKET=MARKET , inicio, fin,porc_empr_UMD=porc_empr_UMD,porc_empr_SMB=porc_empr_SMB,directorio=directorio)
+      MATRIZKPI$UMD <- merge(x=MATRIZKPI["Date"], y=UMD[,c("Date","UMD")], by="Date",all.x=TRUE)[,2]
+      #RMW
+      RMW <- CALCULO_RMW(datos_muestra=datos_muestra, datos_eventos=datos_eventos, fecha_evento=fecha_evento,MARKET=MARKET , inicio, fin,porc_empr_RMW=porc_empr_RMW,porc_empr_SMB=porc_empr_SMB,directorio=directorio)
+      MATRIZKPI$RMW <- merge(x=MATRIZKPI["Date"], y=RMW[,c("Date","RMW")], by="Date",all.x=TRUE)[,2]
+      #CMA
+      CMA <- CALCULO_CMA(datos_muestra=datos_muestra, datos_eventos=datos_eventos, fecha_evento=fecha_evento,MARKET=MARKET , inicio, fin,porc_empr_CMA=porc_empr_CMA,porc_empr_SMB=porc_empr_SMB,directorio=directorio)
+      MATRIZKPI$CMA <- merge(x=MATRIZKPI["Date"], y=CMA[,c("Date","CMA")], by="Date",all.x=TRUE)[,2]
+  } else{
+      MATRIZKPI$RF <- NULL
+      MATRIZKPI <- merge(x=MATRIZKPI,y=FD, all.x=TRUE,by="Date")
+  }
+
   #Rit-Rf
   MATRIZKPI$RitRf <- MATRIZKPI$RE - MATRIZKPI$RF
-  #RM-Rf
-  MATRIZKPI$RMRF <- MATRIZKPI$RM - MATRIZKPI$RF
-
-  #Añadimos el conjunto SMB,HML y UMD
-  #SMB
-  SMB <- CALCULO_SMB(datos_muestra=datos_muestra, datos_eventos=datos_eventos, fecha_evento=fecha_evento,MARKET=MARKET , inicio, fin,porc_empr_SMB=porc_empr_SMB,porc_empr_RMW=porc_empr_RMW,porc_empr_HML=porc_empr_HML,porc_empr_CMA=porc_empr_CMA,directorio=directorio)
-  MATRIZKPI$SMB <- merge(x=MATRIZKPI["Date"], y=SMB[,c("Date","SMB")], by="Date",all.x=TRUE)[,2]
-  #HML
-  HML <- CALCULO_HML(datos_muestra=datos_muestra, datos_eventos=datos_eventos, fecha_evento=fecha_evento,MARKET=MARKET , inicio, fin,porc_empr_HML=porc_empr_HML,porc_empr_SMB=porc_empr_SMB,directorio=directorio)
-  MATRIZKPI$HML <- merge(x=MATRIZKPI["Date"], y=HML[,c("Date","HML")], by="Date",all.x=TRUE)[,2]
-  #UMD
-  UMD <- CALCULO_UMD(datos_muestra=datos_muestra, datos_eventos=datos_eventos, fecha_evento=fecha_evento,MARKET=MARKET , inicio, fin,porc_empr_UMD=porc_empr_UMD,porc_empr_SMB=porc_empr_SMB,directorio=directorio)
-  MATRIZKPI$UMD <- merge(x=MATRIZKPI["Date"], y=UMD[,c("Date","UMD")], by="Date",all.x=TRUE)[,2]
-  #RMW
-  RMW <- CALCULO_RMW(datos_muestra=datos_muestra, datos_eventos=datos_eventos, fecha_evento=fecha_evento,MARKET=MARKET , inicio, fin,porc_empr_RMW=porc_empr_RMW,porc_empr_SMB=porc_empr_SMB,directorio=directorio)
-  MATRIZKPI$RMW <- merge(x=MATRIZKPI["Date"], y=RMW[,c("Date","RMW")], by="Date",all.x=TRUE)[,2]
-  #CMA
-  CMA <- CALCULO_CMA(datos_muestra=datos_muestra, datos_eventos=datos_eventos, fecha_evento=fecha_evento,MARKET=MARKET , inicio, fin,porc_empr_CMA=porc_empr_CMA,porc_empr_SMB=porc_empr_SMB,directorio=directorio)
-  MATRIZKPI$CMA <- merge(x=MATRIZKPI["Date"], y=CMA[,c("Date","CMA")], by="Date",all.x=TRUE)[,2]
-
+  
   #Elimino los dias en que HML es NA, serán festivos o fines de semana...
   MATRIZKPI <- MATRIZKPI[!is.na(MATRIZKPI[,"HML"]),]
 
@@ -992,7 +998,8 @@ ESTIMACION_3F_EMPRESA <- function(fecha_evento,COMPANY,MARKET,
                                   datos_mercados="datos_mercados.txt", 
                                   valores_estables="Riskfree.txt",
                                   datos_eventos="datos_eventos.txt",
-                                  directorio
+                                  directorio,
+                                  FD=NULL
                                   #,inicio, 
                                   #fin
 ){
@@ -1013,7 +1020,8 @@ ESTIMACION_3F_EMPRESA <- function(fecha_evento,COMPANY,MARKET,
   #Calculo de matrizKPI
   MATRIZKPI <- CALCULO_MATRIZKPI(fecha_evento=fecha_evento, MARKET=MARKET, COMPANY=COMPANY, inicio=inicio, fin=fin, datos_muestra=datos_muestra,
                                  datos_mercados=datos_mercados, valores_estables=valores_estables,datos_eventos=datos_eventos,
-                                 porc_empr_SMB=porc_empr_SMB,porc_empr_HML=porc_empr_HML,directorio=directorio)
+                                 porc_empr_SMB=porc_empr_SMB,porc_empr_HML=porc_empr_HML,
+                                 directorio=directorio, FD=FD)
   
 
   #AJUSTE
@@ -1062,7 +1070,7 @@ ESTIMACION_4F_EMPRESA <- function(fecha_evento,COMPANY,MARKET,
                                   datos_mercados="datos_mercados.txt", 
                                   valores_estables="Riskfree.txt",
                                   datos_eventos="datos_eventos.txt",
-                                  directorio){
+                                  directorio, FD=NULL){
   
   #Como dias de inicio y fin de las ventanas de matrizKPI hago una ventana de margen_dias=200 filas de cotizacion desde el evento,
   #es un aprox, para nada crítico
@@ -1089,7 +1097,8 @@ ESTIMACION_4F_EMPRESA <- function(fecha_evento,COMPANY,MARKET,
                                  datos_mercados=datos_mercados, 
                                  datos_eventos = datos_eventos,
                                  valores_estables=valores_estables,
-                                 porc_empr_SMB=porc_empr_SMB, porc_empr_HML=porc_empr_HML,porc_empr_UMD=porc_empr_UMD,directorio = directorio)
+                                 porc_empr_SMB=porc_empr_SMB, porc_empr_HML=porc_empr_HML,porc_empr_UMD=porc_empr_UMD,directorio = directorio,
+                                 FD=FD)
   
   #AJUSTE
   fila_evento_matriz <- which(MATRIZKPI$Date == as.Date(fecha_evento,format="%d/%m/%Y"))
@@ -1133,7 +1142,7 @@ ESTIMACION_5F_EMPRESA <- function(fecha_evento,COMPANY,MARKET,
                                   datos_muestra="datos_muestra.txt",
                                   datos_mercados="datos_mercados.txt",
                                   valores_estables="Riskfree.txt",
-                                  datos_eventos="datos_eventos.txt", directorio){
+                                  datos_eventos="datos_eventos.txt", directorio,FD=NULL){
   
   #Como dias de inicio y fin de las ventanas de matrizKPI hago una ventana de margen_dias=200 filas de cotizacion desde el evento,
   #es un aprox, para nada crítico
@@ -1160,8 +1169,8 @@ ESTIMACION_5F_EMPRESA <- function(fecha_evento,COMPANY,MARKET,
                                  valores_estables=valores_estables,
                                  datos_eventos=datos_eventos,
                                  porc_empr_SMB=porc_empr_SMB, porc_empr_HML=porc_empr_HML, porc_empr_RMW=porc_empr_RMW,
-                                 porc_empr_CMA=porc_empr_CMA, directorio = directorio)
-  
+                                 porc_empr_CMA=porc_empr_CMA, directorio = directorio,
+                                 FD=FD)
   #AJUSTE
   fila_evento_matriz <- which(MATRIZKPI$Date == as.Date(fecha_evento,format="%d/%m/%Y"))
   MATRIZ_ESTIMACION <- data.frame(Day = paste("Day", -LIE:LVE, sep=""),
@@ -1210,12 +1219,13 @@ ACUMULATIVA_3F <- function( margen_dias_previo= 225,margen_dias_post= 50,LIE=170
                             datos_mercados="datos_mercados.txt", 
                             valores_estables="Riskfree.txt",
                             format="%d/%m/%Y",
-                            directorio){
+                            directorio,FD=NULL){
   
   #analisis_array <- read.table(datos_eventos, comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".")
   
   #analisis_array$FECHA_EVENTO <- as.Date(analisis_array$FECHA_EVENTO, format="%d/%m/%Y")
-  analisis_array <- analisisRentabilidad(datos=datos_eventos,datos_mercados =  datos_mercados, LIE=LIE, LVE=LVE,format=format,directorio = directorio)
+  # analisis_array <- analisisRentabilidad(datos=datos_eventos,datos_mercados =  datos_mercados, LIE=LIE, LVE=LVE,format=format,directorio = directorio)
+  analisis_array <- analisisRentabilidad(datos=datos_eventos,datos_mercados =  datos_mercados, LIE=LIE, LVE=LVE,directorio = directorio)
   analisis_array <- analisis_array[which(analisis_array$ControlEvento == "OK"),]
   analisis_array <- analisis_array[!is.na(analisis_array$Fecha_LIE), ]
   analisis_array <- analisis_array[!is.na(analisis_array$Fecha_LVE), ]
@@ -1242,7 +1252,8 @@ ACUMULATIVA_3F <- function( margen_dias_previo= 225,margen_dias_post= 50,LIE=170
                                                    datos_eventos = datos_eventos,
                                                    #inicio=inicio,
                                                    #fin=fin,
-                                                   porc_empr_SMB=porc_empr_SMB, porc_empr_HML=porc_empr_HML,directorio = directorio)[,"ARIT"]
+                                                   porc_empr_SMB=porc_empr_SMB, porc_empr_HML=porc_empr_HML,
+                                                   directorio = directorio, FD=FD)[,"ARIT"]
     b=b+1
   }
   colnames(MATRIZ_RESULTADOS) <- c("Day",paste(analisis_array[,1], analisis_array[,2],sep="||"))
@@ -1262,7 +1273,7 @@ ACUMULATIVA_4F <- function(margen_dias_previo= 225,margen_dias_post= 50,
                            datos_muestra="datos_muestra.txt", 
                            datos_mercados="datos_mercados.txt", 
                            valores_estables="Riskfree.txt",
-                           format="%d/%m/%Y", directorio){
+                           format="%d/%m/%Y", directorio, FD=NULL){
   
   analisis_array <- analisisRentabilidad(datos=datos_eventos,datos_mercados=datos_mercados, LIE=LIE, LVE=LVE,format=format,directorio=directorio)
   analisis_array <- analisis_array[which(analisis_array$ControlEvento == "OK"),]
@@ -1288,7 +1299,8 @@ ACUMULATIVA_4F <- function(margen_dias_previo= 225,margen_dias_post= 50,
                                                    datos_mercados=datos_mercados, 
                                                    datos_eventos = datos_eventos,
                                                    valores_estables=valores_estables,
-                                                   porc_empr_SMB=porc_empr_SMB, porc_empr_HML=porc_empr_HML,porc_empr_UMD=porc_empr_UMD,directorio=directorio)[,"ARIT"]
+                                                   porc_empr_SMB=porc_empr_SMB, porc_empr_HML=porc_empr_HML,porc_empr_UMD=porc_empr_UMD,
+                                                   directorio=directorio,FD=FD)[,"ARIT"]
     b=b+1
   }
   colnames(MATRIZ_RESULTADOS) <- c("Day",paste(analisis_array[,1], analisis_array[,2],sep="||"))
@@ -1307,7 +1319,7 @@ ACUMULATIVA_5F <- function(margen_dias_previo= 225,margen_dias_post= 50,
                            datos_muestra="datos_muestra.txt",
                            datos_mercados="datos_mercados.txt", 
                            valores_estables="Riskfree.txt",
-                           directorio){
+                           directorio, FD=NULL){
   
   analisis_array <- analisisRentabilidad(datos=datos_eventos,datos_mercados = datos_mercados, LIE=LIE, LVE=LVE,format=format,directorio = directorio)
   analisis_array <- analisis_array[which(analisis_array$ControlEvento == "OK"),]
@@ -1331,9 +1343,320 @@ ACUMULATIVA_5F <- function(margen_dias_previo= 225,margen_dias_post= 50,
                                                    datos_eventos = datos_eventos,
                                                    datos_mercados=datos_mercados, 
                                                    valores_estables=valores_estables,
-                                                   porc_empr_SMB=porc_empr_SMB, porc_empr_HML=porc_empr_HML,porc_empr_RMW=porc_empr_RMW,porc_empr_CMA=porc_empr_CMA,directorio = directorio)[,"ARIT"]
+                                                   porc_empr_SMB=porc_empr_SMB, 
+                                                   porc_empr_HML=porc_empr_HML,
+                                                   porc_empr_RMW=porc_empr_RMW,
+                                                   porc_empr_CMA=porc_empr_CMA,
+                                                   directorio = directorio,
+                                                   FD=FD)[,"ARIT"]
     b=b+1
   }
   colnames(MATRIZ_RESULTADOS) <- c("Day",paste(analisis_array[,1], analisis_array[,2],sep="||"))
   return(MATRIZ_RESULTADOS)
+}
+
+##### FUNCIONES PARA EL USO DE LOS DATOS DE KEN FRENCH #####
+
+French_3F <- function(margen_dias_previo= 225,margen_dias_post= 50,LIE=170, LVE=10,
+                      porc_empr_SMB=0.5, porc_empr_HML=0.3,
+                      datos_eventos="datos_eventos.txt",
+                      datos_muestra="datos_muestra.txt",
+                      datos_mercados="datos_mercados.txt", 
+                      valores_estables="Riskfree.txt",
+                      format="%d/%m/%Y",
+                      directorio,FD=NULL){
+  ACUM_3F <- ACUMULATIVA_3F(margen_dias_previo=margen_dias_previo,
+                            margen_dias_post=margen_dias_post, LIE=LIE, LVE=LVE,
+                            datos_eventos=datos_eventos,datos_muestra=datos_muestra,
+                            datos_mercados=datos_mercados,valores_estables=valores_estables,
+                            format=format,directorio=directorio,FD=FD)
+  
+  ACUM_3F[ACUM_3F == 0] <- NA
+  ACUM_3F <- ACUM_3F[,colSums(is.na(ACUM_3F))<nrow(ACUM_3F)]
+  vol3 <- ACUM_3F
+  vol3[,2:ncol(vol3)] <- abs(vol3[,2:ncol(vol3)])
+  vol3[,"mean"] <- rowMeans(vol3[,2:ncol(vol3)], na.rm = TRUE)
+  ncol <- ncol(ACUM_3F)
+  ACUM_3F[,"Mean"] <- rowMeans(ACUM_3F[,2:ncol(ACUM_3F)], na.rm = TRUE)
+  num <- (LIE - LVE + 1)
+  vol3[,"St Des"] <- sd(vol3[1:num, "mean"],na.rm = TRUE)
+  vol3[,"Average"] <- mean(vol3[1:num, "mean"],na.rm = TRUE)
+  vol3[,"mean - average"] <- vol3[,"mean"] - vol3[,"Average"]
+  ACUM_3F[,"St Des"] <- sd(ACUM_3F[1:num,"Mean"],na.rm = TRUE)
+  # result <- shapiro.test(ACUM_3F[1:nrow(ACUM_3F),"Mean"])
+  
+  if (length(na.omit(ACUM_3F[1:num,"Mean"]))>4 & length(na.omit(vol3[1:num,"mean - average"]))>4){
+    result <- lillie.test(ACUM_3F[1:num,"Mean"])
+    # resultVol <- shapiro.test(vol3[,"mean - average"])
+    resultVol <- lillie.test(vol3[1:num,"mean - average"])
+    vol3[,"Normal"] <- ifelse(resultVol$p.value > 0.05, "NORMAL", "NO NORMAL")
+    ACUM_3F[,"Normal"] <- ifelse(result$p.value > 0.05, "NORMAL", "NO NORMAL")
+    vol3[,"p-value"] <- resultVol$p.value
+    ACUM_3F[,"p-value"] <- result$p.value
+  } else {
+    vol3[,"Normal"] <- "NORMAL"
+    ACUM_3F[,"Normal"] <- "NORMAL"
+    vol3[,"p-value"] <- NA
+    ACUM_3F[,"p-value"] <- NA
+  }
+  
+  if (ACUM_3F[1 ,"Normal"] == "NORMAL") {
+    ACUM_3F[,"t-test"] <- ACUM_3F[,"Mean"]/ACUM_3F[1 ,"St Des"]
+  } 
+  corrado2 <- est_corrado(ACUM_3F, ncol)
+  ACUM_3F[,"corrado mean"] <- corrado2[[1]]
+  ACUM_3F[,"Sk"] <- corrado2[[2]]
+  ACUM_3F[,"corrado value"] <- ACUM_3F[,"corrado mean"]/ACUM_3F[,"Sk"]
+  
+  if (vol3[1 ,"Normal"] == "NORMAL") {
+    vol3[,"t-test"] <- vol3[,"mean - average"]/vol3[1 ,"St Des"]
+  } 
+  corrado3 <- est_corrado(vol3, ncol)
+  vol3[,"corrado mean"] <- corrado3[[1]]
+  vol3[,"Sk"] <- corrado3[[2]]
+  vol3[,"corrado value"] <- vol3[,"corrado mean"]/vol3[,"Sk"]
+  
+  return(list(ACUM_3F,vol3))
+}
+
+French_4F <- function(margen_dias_previo= 225,margen_dias_post= 50,LIE=170, LVE=10,
+                      porc_empr_SMB=0.5, porc_empr_HML=0.3,
+                      datos_eventos="datos_eventos.txt",
+                      datos_muestra="datos_muestra.txt",
+                      datos_mercados="datos_mercados.txt", 
+                      valores_estables="Riskfree.txt",
+                      format="%d/%m/%Y",
+                      directorio,FD=NULL){
+
+  ACUM_4F <- ACUMULATIVA_4F(margen_dias_previo= margen_dias_previo,
+                            margen_dias_post=margen_dias_post, 
+                            LIE=LIE, LVE=LVE,
+                            datos_eventos=datos_eventos,
+                            datos_muestra=datos_muestra,
+                            datos_mercados=datos_mercados,
+                            valores_estables=valores_estables,
+                            directorio = directorio,FD=FD)
+  ACUM_4F[ACUM_4F == 0] <- NA
+  ACUM_4F <- ACUM_4F[,colSums(is.na(ACUM_4F))<nrow(ACUM_4F)]
+  vol4 <- ACUM_4F
+  vol4[,2:ncol(vol4)] <- abs(vol4[,2:ncol(vol4)])
+  vol4[,"mean"] <- rowMeans(vol4[,2:ncol(vol4)], na.rm = TRUE)
+  ncol <- ncol(ACUM_4F)
+  ACUM_4F[,"Mean"] <- rowMeans(ACUM_4F[,2:ncol(ACUM_4F)], na.rm = TRUE)
+  num <- (LIE - LVE + 1)
+  vol4[,"St Des"] <- sd(vol4[1:num, "mean"],na.rm = TRUE)
+  vol4[,"Average"] <- mean(vol4[1:num, "mean"],na.rm = TRUE)
+  vol4[,"mean - average"] <- vol4[,"mean"] - vol4[,"Average"]
+  ACUM_4F[,"St Des"] <- sd(ACUM_4F[1:num,"Mean"],na.rm = TRUE)
+  # result <- shapiro.test(ACUM_4F[1:nrow(ACUM_4F),"Mean"])
+
+  if (length(na.omit(ACUM_4F[1:num,"Mean"]))>4 & length(na.omit(vol4[1:num,"mean - average"]))>4){
+    result <- lillie.test(ACUM_4F[1:num,"Mean"])
+    # resultVol <- shapiro.test(vol4[,"mean - average"])
+    resultVol <- lillie.test(vol4[1:num,"mean - average"])
+    vol4[,"Normal"] <- ifelse(resultVol$p.value > 0.05, "NORMAL", "NO NORMAL")
+    ACUM_4F[,"Normal"] <- ifelse(result$p.value > 0.05, "NORMAL", "NO NORMAL")
+    vol4[,"p-value"] <- resultVol$p.value
+    ACUM_4F[,"p-value"] <- result$p.value
+  } else {
+    vol4[,"Normal"] <- "NORMAL"
+    ACUM_4F[,"Normal"] <- "NORMAL"
+    vol4[,"p-value"] <- NA
+    ACUM_4F[,"p-value"] <- NA
+  }
+  if (ACUM_4F[1 ,"Normal"] == "NORMAL") {
+    ACUM_4F[,"t-test"] <- ACUM_4F[,"Mean"]/ACUM_4F[1 ,"St Des"]
+  }
+  corrado2 <- est_corrado(ACUM_4F, ncol)
+  ACUM_4F[,"corrado mean"] <- corrado2[[1]]
+  ACUM_4F[,"Sk"] <- corrado2[[2]]
+  ACUM_4F[,"corrado value"] <- ACUM_4F[,"corrado mean"]/ACUM_4F[,"Sk"]
+
+  if (vol4[1 ,"Normal"] == "NORMAL") {
+    vol4[,"t-test"] <- vol4[,"mean - average"]/vol4[1 ,"St Des"]
+  } 
+  corrado3 <- est_corrado(vol4, ncol)
+  vol4[,"corrado mean"] <- corrado3[[1]]
+  vol4[,"Sk"] <- corrado3[[2]]
+  vol4[,"corrado value"] <- vol4[,"corrado mean"]/vol4[,"Sk"]
+
+  ACUM_4F_ext <<- ACUM_4F
+  vol4_ext <<- vol4
+  return(list(ACUM_4F,vol4))
+}
+
+French_5F <- function(margen_dias_previo= 225,margen_dias_post= 50,LIE=170, LVE=10,
+                      porc_empr_SMB=0.5, porc_empr_HML=0.3,
+                      datos_eventos="datos_eventos.txt",
+                      datos_muestra="datos_muestra.txt",
+                      datos_mercados="datos_mercados.txt", 
+                      valores_estables="Riskfree.txt",
+                      format="%d/%m/%Y",
+                      directorio,FD=NULL){
+  
+  ACUM_5F <- ACUMULATIVA_5F(margen_dias_previo=margen_dias_previo,
+                            margen_dias_post=margen_dias_post, LIE=LIE, LVE=LVE,
+                            datos_eventos=datos_eventos,
+                            datos_muestra=datos_muestra,
+                            datos_mercados=datos_mercados,
+                            valores_estables=valores_estables,
+                            directorio=directorio, FD=FD)
+  ACUM_5F <- as.data.frame(ACUM_5F)
+  ACUM_5F[ACUM_5F == 0] <- NA
+  ACUM_5F <- ACUM_5F[,colSums(is.na(ACUM_5F))<nrow(ACUM_5F)]
+  vol5 <- ACUM_5F
+  vol5[,2:ncol(vol5)] <- abs(vol5[,2:ncol(vol5)])
+  vol5[,"mean"] <- rowMeans(vol5[,2:ncol(vol5)], na.rm = TRUE)
+  ncol <- ncol(ACUM_5F)
+  ACUM_5F[,"Mean"] <- rowMeans(ACUM_5F[,2:ncol(ACUM_5F)], na.rm = TRUE)
+  num <- (LIE - LVE + 1)
+  CINCF <<- ACUM_5F
+  NUM <<- num
+  vol5[,"St Des"] <- sd(vol5[1:num, "mean"],na.rm = TRUE)
+  vol5[,"Average"] <- mean(vol5[1:num, "mean"],na.rm = TRUE)
+  vol5[,"mean - average"] <- vol5[,"mean"] - vol5[,"Average"]
+  ACUM_5F[,"St Des"] <- sd(ACUM_5F[1:num,"Mean"],na.rm = TRUE)
+  
+  if (length(na.omit(ACUM_5F[1:num,"Mean"]))>4 & length(na.omit(vol5[1:num,"mean - average"]))>4){
+    result <- lillie.test(ACUM_5F[1:num,"Mean"])
+    RESULTATKS <<- result
+    resultVol <- lillie.test(vol5[1:num,"mean - average"])
+    vol5[,"Normal"] <- ifelse(resultVol$p.value > 0.05, "NORMAL", "NO NORMAL")
+    ACUM_5F[,"Normal"] <- ifelse(result$p.value > 0.05, "NORMAL", "NO NORMAL")
+    vol5[,"p-value"] <- resultVol$p.value
+    ACUM_5F[,"p-value"] <- result$p.value
+  } else {
+    vol5[,"Normal"] <- "NORMAL"
+    ACUM_5F[,"Normal"] <- "NORMAL"
+    vol5[,"p-value"] <- NA
+    ACUM_5F[,"p-value"] <- NA
+  }
+  if (ACUM_5F[1 ,"Normal"] == "NORMAL") {
+    ACUM_5F[,"t-test"] <- ACUM_5F[,"Mean"]/ACUM_5F[1 ,"St Des"]
+  } 
+  corrado2 <- est_corrado(ACUM_5F, ncol)
+  ACUM_5F[,"corrado mean"] <- corrado2[[1]]
+  ACUM_5F[,"Sk"] <- corrado2[[2]]
+  ACUM_5F[,"corrado value"] <- ACUM_5F[,"corrado mean"]/ACUM_5F[,"Sk"]
+
+  if (vol5[1 ,"Normal"] == "NORMAL") {
+    vol5[,"t-test"] <- vol5[,"mean - average"]/vol5[1 ,"St Des"]
+  }
+  corrado3 <- est_corrado(vol5, ncol)
+  vol5[,"corrado mean"] <- corrado3[[1]]
+  vol5[,"Sk"] <- corrado3[[2]]
+  vol5[,"corrado value"] <- vol5[,"corrado mean"]/vol5[,"Sk"]
+  
+  return(list(ACUM_5F,vol5))
+}
+
+##### FUNCIONES PARA EL TEST DE CORRADO #####
+est_corrado <-function(data, col=NULL) {
+  if(is.null(col)) col <- ncol(data)
+  
+  Corrado <- data[,2:col]
+  rs <- rank(Corrado[, 1], na.last = "keep") + (nrow(Corrado) - rank(-Corrado[, 1], na.last = "keep") - rank(Corrado[, 1], na.last = "keep") + 1)/2
+  resCorrado <- matrix(rs)
+  for (i in 2:ncol(Corrado)) {
+    rs <- rank(Corrado[, i], na.last = "keep") + (nrow(Corrado) - rank(-Corrado[, i], na.last = "keep") - rank(Corrado[, i], na.last = "keep") + 1)/2
+    resCorrado <- cbind(resCorrado, rs)
+  }
+  resCorrado <- as.data.frame(resCorrado)
+  promedio <- rowMeans(resCorrado, na.rm = TRUE) - mean(colMeans(resCorrado, na.rm = TRUE))
+  est <- sqrt(sum((promedio^2)/nrow(resCorrado)))
+  return(list(promedio, est))
+}
+
+est_corrado92 <-function(data, col) {
+  Corrado <- data[,2:col]
+  rs <- rank(Corrado[, 1], na.last = "keep", ties.method = "average")
+  U <- rs/(1+length(na.omit(rs)))
+  resCorrado <- matrix(U)
+  for (i in 2:ncol(Corrado)) {
+    rs <- rank(Corrado[, i], na.last = "keep", ties.method = "average")
+    U <- rs/(1+length(na.omit(rs)))
+    resCorrado <- cbind(resCorrado, U)
+  }
+  resCorrado <- as.data.frame(resCorrado)
+  resCorradoEXT <<- resCorrado
+  t3den <- sqrt(mean((rowSums(resCorrado-0.5)/sqrt(rowSums(!is.na(resCorrado))))^2))
+  t3num <- rowSums(resCorrado-0.5)/(sqrt(rowSums(!is.na(resCorrado))))
+  
+  return(list(t3num, t3den))
+}
+
+##### FUNCIONES PARA LA DESCARGA DE VALORES DE KEN FRENCH #####
+download_french_3F <-function(webname) {
+  name <- tempfile()
+  download.file(webname,name)
+  Innerfile <- unzip(name,list=T)
+  df <- readLines(unz(name,Innerfile$Name))
+  df <- df[grepl("^[0-9]",df)]
+  df <- read.table(text=paste(df,collapse = "\n"),dec=".",header=F,
+                   na.strings = c("-99.99","-999","NA","","N/A","-"))
+  colnames(df) <- c("Date","RMRF","SMB","HML","RF")
+  df$Date <- as.Date(as.character(df$Date),format = "%Y%m%d")
+  df$RMRF <- as.numeric(df$RMRF)/100
+  df$SMB <- as.numeric(df$SMB)/100
+  df$HML <- as.numeric(df$HML)/100
+  df$RF <- as.numeric(df$RF)/100
+  df$CMA <- NA
+  df$UMD <- NA
+  df$RMW <- NA
+  file.remove(name)
+  return(df)
+}
+
+download_french_4F <-function(webname1,webname2) {
+  name <- tempfile()
+  download.file(webname1,name)
+  Innerfile <- unzip(name,list=T)
+  df <- readLines(unz(name,Innerfile$Name))
+  df <- df[grepl("^[0-9]",df)]
+  df <- read.table(text=paste(df,collapse = "\n"),dec=".",header=F,
+                   na.strings = c("-99.99","-999","NA","","N/A","-"))
+  colnames(df) <- c("Date","RMRF","SMB","HML","RF")
+  df$Date <- as.Date(as.character(df$Date),format = "%Y%m%d")
+  df$RMRF <- as.numeric(df$RMRF)/100
+  df$SMB <- as.numeric(df$SMB)/100
+  df$HML <- as.numeric(df$HML)/100
+  df$RF <- as.numeric(df$RF)/100
+  df$CMA <- NA
+  df$RMW <- NA
+  file.remove(name)
+  
+  name <- tempfile()
+  download.file(webname2,name)
+  Innerfile <- unzip(name,list=T)
+  df2 <- readLines(unz(name,Innerfile$Name))
+  df2 <- df2[grepl("^[0-9]",df2)]
+  df2 <- read.table(text=paste(df2,collapse = "\n"),dec=".",header=F,
+                   na.strings = c("-99.99","-999","NA","","N/A","-"))
+  colnames(df2) <- c("Date","UMD")
+  df2$Date <- as.Date(as.character(df2$Date),format = "%Y%m%d")
+  df2$UMD <- as.numeric(df2$UMD)/100
+  df <- merge(df,df2,by="Date")
+  file.remove(name)
+  
+  return(df)
+}
+
+download_french_5F <-function(webname) {
+  download.file(webname,name)
+  Innerfile <- unzip(name,list=T)
+  df <- readLines(unz(name,Innerfile$Name))
+  df <- df[grepl("^[0-9]",df)]
+  df <- read.table(text=paste(df,collapse = "\n"),dec=".",header=F,
+                   na.strings = c("-99.99","-999","NA","","N/A","-"))
+  colnames(df) <- c("Date","RMRF","SMB","HML","RMW","CMA","RF")
+  df$Date <- as.Date(as.character(df$Date),format = "%Y%m%d")
+  df$RMRF <- as.numeric(df$RMRF)/100
+  df$SMB <- as.numeric(df$SMB)/100
+  df$HML <- as.numeric(df$HML)/100
+  df$RMW <- as.numeric(df$RMW)/100
+  df$CMA <- as.numeric(df$CMA)/100
+  df$RF <- as.numeric(df$RF)/100
+  df$UMD <- NA
+  file.remove(name)
+  return(df)
 }

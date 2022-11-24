@@ -5,7 +5,7 @@
 #          "ggthemes", "ggplotify","xlsxjars","nortest")
 
 pckgs<-c("tidyverse", "shiny", "shinyFiles", "shinythemes","writexl",
-         "ggthemes", "ggplotify", "nortest")
+         "ggthemes", "ggplotify", "nortest","shinyalert","readr")
 
 pckgs2Install<-pckgs[!(pckgs %in% library()$results[,1])]
 pckgs2Load<-pckgs[!(pckgs %in% (.packages()))]
