@@ -1591,6 +1591,7 @@ download_french_3F <-function(webname) {
   download.file(webname,name)
   Innerfile <- unzip(name,list=T)
   df <- readLines(unz(name,Innerfile$Name))
+  file.remove(name)
   df <- df[grepl("^[0-9]",df)]
   df <- read.table(text=paste(df,collapse = "\n"),dec=".",header=F,
                    na.strings = c("-99.99","-999","NA","","N/A","-"))
@@ -1603,7 +1604,6 @@ download_french_3F <-function(webname) {
   df$CMA <- NA
   df$UMD <- NA
   df$RMW <- NA
-  file.remove(name)
   return(df)
 }
 
@@ -1612,6 +1612,7 @@ download_french_4F <-function(webname1,webname2) {
   download.file(webname1,name)
   Innerfile <- unzip(name,list=T)
   df <- readLines(unz(name,Innerfile$Name))
+  file.remove(name)
   df <- df[grepl("^[0-9]",df)]
   df <- read.table(text=paste(df,collapse = "\n"),dec=".",header=F,
                    na.strings = c("-99.99","-999","NA","","N/A","-"))
@@ -1623,12 +1624,13 @@ download_french_4F <-function(webname1,webname2) {
   df$RF <- as.numeric(df$RF)/100
   df$CMA <- NA
   df$RMW <- NA
-  file.remove(name)
+
   
   name <- tempfile()
   download.file(webname2,name)
   Innerfile <- unzip(name,list=T)
   df2 <- readLines(unz(name,Innerfile$Name))
+  file.remove(name)
   df2 <- df2[grepl("^[0-9]",df2)]
   df2 <- read.table(text=paste(df2,collapse = "\n"),dec=".",header=F,
                    na.strings = c("-99.99","-999","NA","","N/A","-"))
@@ -1636,15 +1638,17 @@ download_french_4F <-function(webname1,webname2) {
   df2$Date <- as.Date(as.character(df2$Date),format = "%Y%m%d")
   df2$UMD <- as.numeric(df2$UMD)/100
   df <- merge(df,df2,by="Date")
-  file.remove(name)
-  
+
+
   return(df)
 }
 
 download_french_5F <-function(webname) {
+  name <- tempfile()
   download.file(webname,name)
   Innerfile <- unzip(name,list=T)
   df <- readLines(unz(name,Innerfile$Name))
+  file.remove(name)
   df <- df[grepl("^[0-9]",df)]
   df <- read.table(text=paste(df,collapse = "\n"),dec=".",header=F,
                    na.strings = c("-99.99","-999","NA","","N/A","-"))
@@ -1657,6 +1661,5 @@ download_french_5F <-function(webname) {
   df$CMA <- as.numeric(df$CMA)/100
   df$RF <- as.numeric(df$RF)/100
   df$UMD <- NA
-  file.remove(name)
   return(df)
 }
