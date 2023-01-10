@@ -1,5 +1,6 @@
 source("global.R")
 
+# Variables
 AN_DOC_VOL <- NULL
 ACUM_VOL <- NULL
 AN_DOC_RENT <- NULL
