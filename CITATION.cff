@@ -4,7 +4,9 @@ authors:
   - family-names: Serrano
     given-names: Vanessa
     orcid: https://orcid.org/0000-0001-6572-0680
+  - family-names: Cuadros
+    given-names: Jordi
+    orcid: https://orcid.org/0000-0001-6513-9140
 title: "Event Studies for Finance"
-version: 1.0.0
-date-released: 2021-11-11
-repository-code: https://github.com/vanessaserrano/EventStudies4Finance
+date-released: 2022-12-15
+repository-code: https://github.com/vanessaserrano/EventStudies4Finance/tree/FINI202211
