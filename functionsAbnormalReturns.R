@@ -1551,7 +1551,7 @@ French_5F <- function(margen_dias_previo= 225,margen_dias_post= 50,LIE=170, LVE=
 }
 
 ##### FUNCIONES PARA EL TEST DE CORRADO #####
-est_corrado <-function(data, col=NULL) {
+est_corradoOLD <-function(data, col=NULL) {
   if(is.null(col)) col <- ncol(data)
   
   Corrado <- data[,2:col]
@@ -1567,7 +1567,7 @@ est_corrado <-function(data, col=NULL) {
   return(list(promedio, est))
 }
 
-est_corrado92 <-function(data, col) {
+est_corrado <-function(data, col) {
   Corrado <- data[,2:col]
   rs <- rank(Corrado[, 1], na.last = "keep", ties.method = "average")
   U <- rs/(1+length(na.omit(rs)))
