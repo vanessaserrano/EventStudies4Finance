@@ -1551,7 +1551,7 @@ French_5F <- function(margen_dias_previo= 225,margen_dias_post= 50,LIE=170, LVE=
 }
 
 ##### FUNCIONES PARA EL TEST DE CORRADO #####
-est_corradoOLD <-function(data, col=NULL) {
+est_corrado89 <-function(data, col=NULL) {
   if(is.null(col)) col <- ncol(data)
   
   Corrado <- data[,2:col]
@@ -1579,8 +1579,8 @@ est_corrado <-function(data, col) {
   }
   resCorrado <- as.data.frame(resCorrado)
   resCorradoEXT <<- resCorrado
-  t3den <- sqrt(mean((rowSums(resCorrado-0.5)/sqrt(rowSums(!is.na(resCorrado))))^2))
-  t3num <- rowSums(resCorrado-0.5)/(sqrt(rowSums(!is.na(resCorrado))))
+  t3den <- sqrt(mean((rowSums(resCorrado-0.5)/sqrt(rowSums(!is.na(resCorrado))))^2,na.rm=T))
+  t3num <- rowSums(resCorrado-0.5,na.rm=T)/(sqrt(rowSums(!is.na(resCorrado))))
   
   return(list(t3num, t3den))
 }
