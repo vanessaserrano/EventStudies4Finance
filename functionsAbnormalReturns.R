@@ -1579,8 +1579,8 @@ est_corrado92 <-function(data, col) {
   }
   resCorrado <- as.data.frame(resCorrado)
   resCorradoEXT <<- resCorrado
-  t3den <- sqrt(mean((rowSums(resCorrado-0.5)/sqrt(rowSums(!is.na(resCorrado))))^2))
-  t3num <- rowSums(resCorrado-0.5)/(sqrt(rowSums(!is.na(resCorrado))))
+  t3den <- sqrt(mean((rowSums(resCorrado-0.5)/sqrt(rowSums(!is.na(resCorrado))))^2,na.rm=T))
+  t3num <- rowSums(resCorrado-0.5,na.rm=T)/(sqrt(rowSums(!is.na(resCorrado))))
   
   return(list(t3num, t3den))
 }
