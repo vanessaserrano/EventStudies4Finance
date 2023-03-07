@@ -91,7 +91,11 @@ server <- function(input, output, session) {
           )
         ACUM_VOL[ACUM_VOL == 0] <- NA
         ncol <- ncol(ACUM_VOL)
-        ACUM_VOL[,"Mean"] <- rowMeans(ACUM_VOL[,2:(ncol(ACUM_VOL))], na.rm = TRUE) 
+        
+        ACUM_VOL[,"Mean"] <- ACUM_VOL[,2] 
+        if (ncol(ACUM_VOL)>2) {
+          ACUM_VOL[,"Mean"] <- rowMeans(ACUM_VOL[,2:(ncol(ACUM_VOL))], na.rm = TRUE) 
+        }
         ACUM_VOL[,"Mean - 1"] <- ACUM_VOL[,"Mean"] - 1
         num <- (input$LSPE11 - input$LIPE11 + 1) + (input$LSPE22 - input$LIPE22 + 1)
         ACUM_VOL[,"St Des"] <- sd(ACUM_VOL[1:num,"Mean"])
@@ -150,9 +154,20 @@ server <- function(input, output, session) {
         
         vol2 <- ACUM_RENT
         vol2[,2:ncol(vol2)] <- abs(vol2[,2:ncol(vol2)])
-        vol2[,"mean"] <- rowMeans(vol2[,2:ncol(vol2)], na.rm = TRUE)
+        
+        vol2[,"mean"] <- vol2[,2]
+        
+        if(ncol(vol2) > 2) {
+          vol2[,"mean"] <- rowMeans(vol2[,2:ncol(vol2)], na.rm = TRUE)
+        }
+        
         ncol <- ncol(ACUM_RENT)
-        ACUM_RENT[,"Mean"] <- rowMeans(ACUM_RENT[,2:ncol(ACUM_RENT)], na.rm = TRUE) 
+        ACUM_RENT[,"Mean"] <- ACUM_RENT[,2]
+        
+        if(ncol(ACUM_RENT) > 2) {
+          ACUM_RENT[,"Mean"] <- rowMeans(ACUM_RENT[,2:ncol(ACUM_RENT)], na.rm = TRUE) 
+        }
+        
         num <- (input$LIE2 - input$LVE2 + 1)
         vol2[,"St Des"] <- sd(vol2[1:num, "mean"])
         vol2[,"Average"] <- mean(vol2[1:num, "mean"])
@@ -409,9 +424,19 @@ server <- function(input, output, session) {
       ACUM_3F <- ACUM_3F[,colSums(is.na(ACUM_3F))<nrow(ACUM_3F)]
       vol3 <- ACUM_3F
       vol3[,2:ncol(vol3)] <- abs(vol3[,2:ncol(vol3)])
-      vol3[,"mean"] <- rowMeans(vol3[,2:ncol(vol3)], na.rm = TRUE)
+
+      vol3[,"mean"] <- vol3[,2]
+      if(ncol(vol3)>2) {
+        vol3[,"mean"] <- rowMeans(vol3[,2:ncol(vol3)], na.rm = TRUE)
+      } 
+      
       ncol <- ncol(ACUM_3F)
-      ACUM_3F[,"Mean"] <- rowMeans(ACUM_3F[,2:ncol(ACUM_3F)], na.rm = TRUE)
+      
+      ACUM_3F[,"Mean"] <- ACUM_3F[,2]
+      if (ncol(ACUM_3F)>2) {
+        ACUM_3F[,"Mean"] <- rowMeans(ACUM_3F[,2:ncol(ACUM_3F)], na.rm = TRUE)
+      }
+      
       num <- (input$LIE3 - input$LVE3 + 1)
       vol3[,"St Des"] <- sd(vol3[1:num, "mean"])
       vol3[,"Average"] <- mean(vol3[1:num, "mean"])
@@ -625,9 +650,18 @@ server <- function(input, output, session) {
       ACUM_4F <- ACUM_4F[,colSums(is.na(ACUM_4F))<nrow(ACUM_4F)]
       vol4 <- ACUM_4F
       vol4[,2:ncol(vol4)] <- abs(vol4[,2:ncol(vol4)])
-      vol4[,"mean"] <- rowMeans(vol4[,2:ncol(vol4)], na.rm = TRUE)
+      vol4[,"mean"] <- vol4[,2]
+      if(ncol(vol4)>2) {
+        vol4[,"mean"] <- rowMeans(vol4[,2:ncol(vol4)], na.rm = TRUE)
+      } 
+      
       ncol <- ncol(ACUM_4F)
-      ACUM_4F[,"Mean"] <- rowMeans(ACUM_4F[,2:ncol(ACUM_4F)], na.rm = TRUE)
+      
+      ACUM_4F[,"Mean"] <- ACUM_4F[,2]
+      if (ncol(ACUM_4F)>2) {
+        ACUM_4F[,"Mean"] <- rowMeans(ACUM_4F[,2:ncol(ACUM_4F)], na.rm = TRUE)
+      }
+      
       num <- (input$LIE4 - input$LVE4 + 1)
       vol4[,"St Des"] <- sd(vol4[1:num, "mean"])
       vol4[,"Average"] <- mean(vol4[1:num, "mean"])
@@ -839,9 +873,19 @@ server <- function(input, output, session) {
       ACUM_5F <- ACUM_5F[,colSums(is.na(ACUM_5F))<nrow(ACUM_5F)]
       vol5 <- ACUM_5F
       vol5[,2:ncol(vol5)] <- abs(vol5[,2:ncol(vol5)])
-      vol5[,"mean"] <- rowMeans(vol5[,2:ncol(vol5)], na.rm = TRUE)
+      
+      vol5[,"mean"] <- vol5[,2]
+      if(ncol(vol5)>2) {
+        vol5[,"mean"] <- rowMeans(vol5[,2:ncol(vol5)], na.rm = TRUE)
+      } 
+      
       ncol <- ncol(ACUM_5F)
-      ACUM_5F[,"Mean"] <- rowMeans(ACUM_5F[,2:ncol(ACUM_5F)], na.rm = TRUE)
+      
+      ACUM_5F[,"Mean"] <- ACUM_5F[,2]
+      if (ncol(ACUM_5F)>2) {
+        ACUM_5F[,"Mean"] <- rowMeans(ACUM_5F[,2:ncol(ACUM_5F)], na.rm = TRUE)
+      }
+      
       num <- (input$LIE5 - input$LVE5 + 1)
       CINCF <<- ACUM_5F
       NUM <<- num

@@ -46,127 +46,7 @@ AnalisisDirectorio <- function(directorioDatos,documentoEventos){
 
 #datos='Fechas_ok.txt'
 
-analisisRentabilidad_NoUsar <- function(datos,datos_mercados="datos_mercados.txt", format="%d/%m/%Y",LIE=170,LVE=10, directorio){
-  
-  
-  ##CARGA DE DATOS DE MERCADO -----------------------------------------------------------------------------------
-  #Lectura de datos del mercado
-
-  datos_todos_mercados <- read.table(datos_mercados,comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".")
-  colnames(datos_todos_mercados)[1] <- "Date"
-  #Con este for se pretende limpiar los datos de cada columna de mercado y crear un objeto R para cada mercado
-    #df_inter es una variable intermedia que vamos pisando para coger cada mercado y al final de cada iteracion la asignamos a un objeto R con el nombre del mercado
-        #El objetivo es tener diferentes objetos de R creados en diferentes iteraciones con los datos de cada mercado, para ser mas eficientes y no ir reevaluando el 
-        # archivo de texto de los diferentes mercados cada evaluaci?n de empresa (limpiando NA...)
-  for(i in 2:length(colnames(datos_todos_mercados))){
-    mercado = colnames(datos_todos_mercados)[i]
-    #Cargamos los datos de esta iteraci?n al objeto intermedio df_inter
-    df_inter <- data.frame(Date = datos_todos_mercados[,1], mercado = datos_todos_mercados[,i])
-    #Sacamos todos los dias de cotizaci?n que tienen valor NA
-    df_inter <- df_inter[!is.na(df_inter[,2]),]
-    #Sacamos todas las cotizaciones de dia de navidad o 1 de enero
-    df_inter <- df_inter[!format(df_inter[,"Date"],format='%d/%m')==format(as.Date("01/01/2000",format='%d/%m/%Y'),'%d/%m'),]
-    df_inter <- df_inter[!format(df_inter[,"Date"],format='%d/%m')==format(as.Date("25/12/2000",format='%d/%m/%Y'),'%d/%m'),]
-    #Uniformamos las fechas al formato establecido
-    df_inter$Date <- as.Date(df_inter$Date,format='%d/%m/%Y')
-    #Asignamos el objeto intermedio df_inter a un objeto de R con el nombre del mercado en cuesti?n
-    assign(eval(mercado),df_inter)
-  }
-  #En el fondo queremos quedarnos solo con los objetos de los diferentes mercados, por tanto
-  rm(df_inter)#Elimino el objeto de datos intermedio
-  rm(datos_todos_mercados)#Elimino el objeto de datos_todos_mercados ya que tengo todos los mercados cargados en diferentes objetos
-  # FIN CARGA DE DATOS DE MERCADO --------------------------------------------------------------------------------
-  
-  ##CARGA DE DATOS DE EVENTOS Y EMPRESAS ------------------------------------------------------------------------------------
-  datos <- read.table(datos,sep="\t",header=T,comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),quote="",stringsAsFactors = FALSE,dec=".")
-  #Uniformamos el formato de fechas de toda la columna de eventos
-  datos[,2] <- as.Date(datos[,2],format='%d/%m/%Y')
-  #Ordenamos la matriz por orden alfab?tico de empresa y posteriormente por fecha de evento
-  datos <- datos[order(datos[,1],datos[,2],decreasing=F),]
-  #Generamos las columnas de fecha_evento_def,limites de ventanas de estimaci?n (LIE y LIE), ControlEvento y Comentarios
-  datos$Fecha_evento_def <- as.Date(NA,format=format)
-  datos$Fecha_LIE <- as.Date(NA,format=format)
-  datos$Fecha_LVE <- as.Date(NA,format=format)
-  datos$ControlEvento <- NA
-  datos$Comentarios <- NA
-  # FIN CARGA DE DATOS DE EVENTOS Y EMPRESAS --------------------------------------------------------------------------------
-  
-  
-  #HACEMOS UN SEGUNDO FOR PARA DETERMINAR PARA CADA EMPRESA
-  #--> FECHA EVENTO DEFINITIVA
-  #--> FECHA LIE
-  #--> FECHA LVE
-  
-  #Cargamos los datos para la primera empresa y luego seguir? la iteraci?n a partir de la segunda, el tema es que la primera empresa tiene evento OK seguro, 
-  #no tiene con quien compara la fecha anteriormente y fallar por contaminaci?n de evento
-  
-  empresa <- as.character(datos[1,1]) #Primera empresa de la matriz
-  mercado <- datos[1,3] #Mercado de la primera empresa de la matriz
-  #Carga,limpieza y adecuaci?n de los datos de la empresa
-  datos_empresa <- read.table(paste(directorio,'/',as.character(empresa),'.txt',sep = ''), comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".")
-  colnames(datos_empresa) <- c("Date","PX_LAST","PX_VOLUME")
-  datos_empresa <- datos_empresa[!is.na(datos_empresa[,"PX_LAST"]),]
-  datos_empresa <- datos_empresa[!format(datos_empresa[,"Date"],format='%d/%m')==format(as.Date("01/01/2000",format='%d/%m/%Y'),'%d/%m'),]
-  datos_empresa <- datos_empresa[!format(datos_empresa[,"Date"],format='%d/%m')==format(as.Date("25/12/2000",format='%d/%m/%Y'),'%d/%m'),]
-  datos_empresa$Date <- as.Date(datos_empresa$Date,format='%d/%m/%Y')
-  
-  
-  for(i in 1:nrow(datos)){
-    if(i>=2 && datos[i,1] != datos[i-1,1]){  #este if sirve para cargar solo los datos de empresas que no se hayan cargado, sean distintas a la anterior fila...
-              empresa <- datos[i,1]
-              mercado <- datos[i,3]
-              datos_empresa <- read.table(paste(directorio,'/',as.character(empresa),'.txt',sep = ''), comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".")
-              colnames(datos_empresa) <- c("Date","PX_LAST","PX_VOLUME")
-              datos_empresa <- datos_empresa[!is.na(datos_empresa[,"PX_LAST"]),]
-              datos_empresa <- datos_empresa[!format(datos_empresa[,"Date"],format='%d/%m')==format(as.Date("01/01/2000",format='%d/%m/%Y'),'%d/%m'),]
-              datos_empresa <- datos_empresa[!format(datos_empresa[,"Date"],format='%d/%m')==format(as.Date("25/12/2000",format='%d/%m/%Y'),'%d/%m'),]
-              datos_empresa$Date <- as.Date(datos_empresa$Date,format='%d/%m/%Y')}
-    
-    df_aux <- eval(parse(text=mercado)) #data frame con el mercado en cuestion para este evento
-    
-    #Comprobamos que la fecha evento puede ser esa, sino sumamos dias hasta encontrar una en comun entre mercado y empresa
-    event_day = as.Date(datos[i,2],format='%d/%m/%Y')
-    fecha_buscar <- event_day
-    while(is_empty(which(datos_empresa$Date == as.Date(fecha_buscar,format='%d/%m/%Y')))==T
-          || is_empty(which(df_aux$Date == as.Date(fecha_buscar,format='%d/%m/%Y')))==T){
-      fecha_buscar <- as.Date(fecha_buscar,format = '%d/%m/%Y')+1
-    }
-    #A?adimos una nota en consola o comentario en la matriz en caso de tener que modificar fecha evento...
-    if(!event_day==fecha_buscar){
-      datos$Comentarios[i] <- paste("Fecha del evento de ",empresa,"modificada, pasa de ",event_day," a ",fecha_buscar)#Comentario en la columna "Comentarios" de la matriz
-      event_day=fecha_buscar
-    }else{datos$Comentarios[i]<- "--"}
-    datos$Fecha_evento_def[i]<-as.Date(event_day,format=format) #incoroporamos la fecha final en campo fecha_definitiva...
-    
-    #Calculo la fila de la matriz datos_empresa donde se encuentra el dia del evento
-    
-    fila_evento_empresa <- which(datos_empresa$Date == as.Date(event_day,format=format))
-    
-    if(fila_evento_empresa < LIE){ #No hay suficientes datos para hacer la estimaci?n...
-      
-      datos$ControlEvento[i]="ANULADA POR FALTA DE DATOS"
-      datos$Fecha_LVE[i] <- datos_empresa[fila_evento_empresa + LVE,"Date"]
-      
-    }else{ #Asignamos las fechas de LVE y LIE en base a fechas de cotizaci?n de la matriz 
-      
-      datos$Fecha_LVE[i] <- datos_empresa[fila_evento_empresa + LVE,"Date"]
-      datos$Fecha_LIE[i] <- datos_empresa[fila_evento_empresa - LIE,"Date"]}
-    }
-    
-    #Final del primer FOR para establecer fecha_evento_def LVE y LIE
-  
-  i=2
-  
-  if(is.na(datos$ControlEvento[1])==T){datos$ControlEvento[1]="OK"}
-  
-  for(i in 2:nrow(datos)){
-    if(is.na(datos$ControlEvento[i]) == T){
-      if(datos[i,1]==datos[i-1,1] && (datos$Fecha_LIE[i] - datos$Fecha_LVE[i-1])< 0){#La empresa es la misma que la fila anterior
-        datos$ControlEvento[i]="ERRONEO"
-      }else{datos$ControlEvento[i]="OK"}}}#final del segundo FOR para determinar finalmente quÃ© eventos son analizables
-  return(datos)#Para que nos devuelva la matriz con los eventos y las conclusiones del anÃ¡lisis
-}
-
+# Attention format is hard-coded (sometimes)
 ANALISIS_DOC_VOLUMEN <- function(datos,LSPE1=95,LSPE2=95,format="%d/%m/%Y",directorio){
   
   datos <- read.table(datos,sep="\t",header=T,comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),quote="",stringsAsFactors = FALSE,dec=".")
@@ -191,7 +71,6 @@ ANALISIS_DOC_VOLUMEN <- function(datos,LSPE1=95,LSPE2=95,format="%d/%m/%Y",direc
   datos_empresa<- datos_empresa[!format(datos_empresa[,"Date"],format='%d/%m')==format(as.Date("25/12/2000",format='%d/%m/%Y'),'%d/%m'),]
   datos_empresa$Date <- as.Date(datos_empresa$Date,format='%d/%m/%Y')
 
-
   for(i in 1:nrow(datos)){
     if(i>=2 && datos[i,1] != datos[i-1,1]){  #este if sirve para cargar solo los datos cuando no se hayan cargado anteriormente (aumentar eficiencia del cÃ³digo)
       empresa <- datos[i,1]
@@ -199,55 +78,59 @@ ANALISIS_DOC_VOLUMEN <- function(datos,LSPE1=95,LSPE2=95,format="%d/%m/%Y",direc
       colnames(datos_empresa) <- c("Date","PX_LAST","PX_VOLUME")
       datos_empresa <- datos_empresa[!is.na(datos_empresa[,"PX_LAST"]),]
       datos_empresa <- datos_empresa[!is.na(datos_empresa[,"PX_VOLUME"]),]
-      datos_empresa<- datos_empresa[!format(datos_empresa[,"Date"],format='%d/%m')==format(as.Date("01/01/2000",format='%d/%m/%Y'),'%d/%m'),]
-      datos_empresa<- datos_empresa[!format(datos_empresa[,"Date"],format='%d/%m')==format(as.Date("25/12/2000",format='%d/%m/%Y'),'%d/%m'),]
-      datos_empresa$Date <- as.Date(datos_empresa$Date,format='%d/%m/%Y')}
-    
-    #Comprobamos que la fecha evento puede ser esa, sino sumamos dias hasta encontrar una en comun entre mercado y empresa
-    event_day=as.Date(datos[i,2],format='%d/%m/%Y')
-    fecha_buscar<-event_day
-
-    while(is_empty(which(datos_empresa$Date == as.Date(fecha_buscar,format='%d/%m/%Y')))==T){
-      fecha_buscar <- as.Date(fecha_buscar,format = '%d/%m/%Y')+1
-      
+      datos_empresa<- datos_empresa[format(datos_empresa[,"Date"],format='%d/%m')!=format(as.Date("01/01/2000",format='%d/%m/%Y'),'%d/%m'),]
+      datos_empresa<- datos_empresa[format(datos_empresa[,"Date"],format='%d/%m')!=format(as.Date("25/12/2000",format='%d/%m/%Y'),'%d/%m'),]
+      datos_empresa$Date <- as.Date(datos_empresa$Date,format='%d/%m/%Y')
     }
     
-    if(!event_day==fecha_buscar){
+    #Comprobamos que la fecha evento puede ser esa, sino sumamos dias hasta encontrar una en comun entre mercado y empresa
+    event_day <- as.Date(datos[i,2],format='%d/%m/%Y')
+    fecha_buscar <- event_day
+
+    while(is_empty(which(datos_empresa$Date == as.Date(fecha_buscar,format='%d/%m/%Y')))==T){
+      fecha_buscar <- format(as.Date(fecha_buscar,format = '%d/%m/%Y') + 1, format='%d/%m/%Y')
+    }
+    
+    if(event_day!=fecha_buscar){
       datos$Comentarios[i] <- paste("Fecha del evento de ",empresa,"modificada, pasa de ",
                                     event_day," a ",fecha_buscar)
-      event_day=fecha_buscar
-      
-    }else{
+      event_day <- fecha_buscar
+    } else {
       datos$Comentarios[i]<- "--"
     }
     datos$Fecha_evento_def[i]<-as.Date(event_day,format=format)
     
-    #Calculo la fila de la matriz datos_empresa donde se encuentra el dia del evento
+    # Calculo la fila de la matriz datos_empresa donde se encuentra el dia del evento
     
     fila_evento_empresa <- which(datos_empresa$Date == as.Date(event_day,format=format))
     if(fila_evento_empresa < abs(LSPE1)){
       datos$ControlEvento[i]="ANULADA POR FALTA DE DATOS"
       datos$Fecha_LSPE2[i] <- datos_empresa[fila_evento_empresa + LSPE2,"Date"]
-      
-    }else{
-      
+    } else {
       datos$Fecha_LSPE2[i] <- datos_empresa[fila_evento_empresa + LSPE2,"Date"]
-      datos$Fecha_LSPE1[i] <- datos_empresa[fila_evento_empresa - LSPE1,"Date"]}
-    
-  }#Final del primer FOR para establecer fecha_evento_def LSV y LIE
-  
+      datos$Fecha_LSPE1[i] <- datos_empresa[fila_evento_empresa - LSPE1,"Date"]
+    }
+  }  # Final del primer FOR para establecer fecha_evento_def LSV y LIE
+
   i=2
   
   if(is.na(datos$ControlEvento[1])==T){
     datos$ControlEvento[1]="OK"}
   
-  for(i in 2:nrow(datos)){
-    if(is.na(datos$ControlEvento[i]) == T){
-      if(datos[i,1]==datos[i-1,1] && (datos$Fecha_LSPE1[i] - datos$Fecha_LSPE2[i-1])< 0){#La empresa es la misma que la fila anterior
-        datos$ControlEvento[i]="ERRONEO"
-      }else{datos$ControlEvento[i]="OK"}}}#final del segundo FOR para determinar finalmente quÃ© eventos son analizables
-  return(datos)
+  if(nrow(datos)>1) {
+    for(i in 2:nrow(datos)){
+      if(is.na(datos$ControlEvento[i]) == T) {
+        if(datos[i,1]==datos[i-1,1] && (datos$Fecha_LSPE1[i] - datos$Fecha_LSPE2[i-1])< 0){
+          #La empresa es la misma que la fila anterior
+          datos$ControlEvento[i]="ERRONEO"
+        } else {
+          datos$ControlEvento[i]="OK"
+        }
+      }
+    }#final del segundo FOR para determinar finalmente quÃ© eventos son analizables
+  }
   
+  return(datos)
 }
 
 #Ejemplo:

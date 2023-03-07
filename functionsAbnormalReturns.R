@@ -145,7 +145,6 @@ analisisRentabilidad <- function(datos,datos_mercados="datos_mercados.txt", form
   datos_empresa <- datos_empresa[format(datos_empresa[,"Date"],format='%d/%m')!="25/12",]
   datos_empresa$Date <- as.Date(datos_empresa$Date,format='%d/%m/%Y')
   
-  
   for(i in 1:nrow(datos)){
     if(i>=2 && datos[i,1] != datos[i-1,1]){  #este if sirve para cargar solo los datos de empresas que no se hayan cargado, sean distintas a la anterior fila...
       empresa <- datos[i,1]
@@ -164,15 +163,19 @@ analisisRentabilidad <- function(datos,datos_mercados="datos_mercados.txt", form
     #Comprobamos que la fecha evento puede ser esa, sino sumamos dias hasta encontrar una en comun entre mercado y empresa
     event_day = as.Date(datos[i,2],format='%d/%m/%Y')
     fecha_buscar <- event_day
+    
     while(is_empty(which(datos_empresa$Date == as.Date(fecha_buscar,format='%d/%m/%Y')))==T
           || is_empty(which(df_aux$Date == as.Date(fecha_buscar,format='%d/%m/%Y')))==T){
-      fecha_buscar <- as.Date(fecha_buscar,format = '%d/%m/%Y')+1
+      fecha_buscar <- format(as.Date(fecha_buscar,format = '%d/%m/%Y')+1, format='%d/%m/%Y')
     }
+    
     #A?adimos una nota en consola o comentario en la matriz en caso de tener que modificar fecha evento...
     if(!event_day==fecha_buscar){
       datos$Comentarios[i] <- paste("Fecha del evento de ",empresa,"modificada, pasa de ",event_day," a ",fecha_buscar)#Comentario en la columna "Comentarios" de la matriz
       event_day=fecha_buscar
-    }else{datos$Comentarios[i]<- "--"}
+    } else {
+      datos$Comentarios[i]<- "--"
+    }
     datos$Fecha_evento_def[i]<-as.Date(event_day,format=format) #incoroporamos la fecha final en campo fecha_definitiva...
     
     #Calculo la fila de la matriz datos_empresa donde se encuentra el dia del evento
@@ -180,27 +183,32 @@ analisisRentabilidad <- function(datos,datos_mercados="datos_mercados.txt", form
     fila_evento_empresa <- which(datos_empresa$Date == as.Date(event_day,format=format))
     
     if(fila_evento_empresa < LIE){ #No hay suficientes datos para hacer la estimaci?n...
-      
       datos$ControlEvento[i]="ANULADA POR FALTA DE DATOS"
       datos$Fecha_LVE[i] <- datos_empresa[fila_evento_empresa + LVE,"Date"]
-      
-    }else{ #Asignamos las fechas de LVE y LIE en base a fechas de cotizaci?n de la matriz 
-      
+    } else { #Asignamos las fechas de LVE y LIE en base a fechas de cotizaci?n de la matriz 
       datos$Fecha_LVE[i] <- datos_empresa[fila_evento_empresa + LVE,"Date"]
       datos$Fecha_LIE[i] <- datos_empresa[fila_evento_empresa - LIE,"Date"]
     }
   }
-  
   #Final del primer FOR para establecer fecha_evento_def LVE y LIE
   
-  if(is.na(datos$ControlEvento[1])==T){datos$ControlEvento[1]="OK"}
+  if(is.na(datos$ControlEvento[1])==T){
+    datos$ControlEvento[1]="OK"
+  }
   
-  for(i in 2:nrow(datos)){
-    if(is.na(datos$ControlEvento[i]) == T){
-      if(datos[i,1]==datos[i-1,1] && (datos$Fecha_LIE[i] - datos$Fecha_LVE[i-1])< 0){#La empresa es la misma que la fila anterior
-        datos$ControlEvento[i]="ERRONEO"
-      }else{datos$ControlEvento[i]="OK"}}}#final del segundo FOR para determinar finalmente quÃ© eventos son analizables
-  return(datos)#Para que nos devuelva la matriz con los eventos y las conclusiones del anÃ¡lisis
+  if(nrow(datos)>1) {
+    for(i in 2:nrow(datos)){
+      if(is.na(datos$ControlEvento[i]) == T){
+        if(datos[i,1]==datos[i-1,1] && (datos$Fecha_LIE[i] - datos$Fecha_LVE[i-1])< 0){#La empresa es la misma que la fila anterior
+          datos$ControlEvento[i]="ERRONEO"
+        } else {
+          datos$ControlEvento[i]="OK"
+        }
+      }
+    } #final del segundo FOR para determinar finalmente quÃ© eventos son analizables
+  }
+  
+  return(datos) # Para que nos devuelva la matriz con los eventos y las conclusiones del anÃ¡lisis
 }
 
 EMPRESAS_SMB <- function(datos_eventos,datos_muestra,fecha_evento,MARKET,porc_empr_SMB=0.5){
@@ -1018,7 +1026,7 @@ ESTIMACION_3F_EMPRESA <- function(fecha_evento,COMPANY,MARKET,
 ){
   #Como dias de inicio y fin de las ventanas de matrizKPI hago una ventana de margen_dias=200 filas de cotizacion desde el evento,
   #es un aprox, para nada crítico
-  
+
   #EMPRESA
   # datos_EMPRESA <- read.table(paste(directorio,'/',COMPANY,'.txt',sep=''), comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".")
   datos_EMPRESA <- read.table(paste0(directorio,'/',COMPANY,'.txt'), na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".")
@@ -1244,6 +1252,7 @@ ACUMULATIVA_3F <- function( margen_dias_previo= 225,margen_dias_post= 50,LIE=170
   analisis_array <- analisis_array[!is.na(analisis_array$Fecha_LVE), ]
   MATRIZ_RESULTADOS <- data.frame(Day = paste("Day", -LIE:LVE, sep=""))
   b=2
+  
   for(i in 1:nrow(analisis_array)){
     # i es el contador de filas del documento que contiene los datos de la muestra a analizar
     # b es el contador de columnas de la matriz resultado
@@ -1388,9 +1397,19 @@ French_3F <- function(margen_dias_previo= 225,margen_dias_post= 50,LIE=170, LVE=
   ACUM_3F <- ACUM_3F[,colSums(is.na(ACUM_3F))<nrow(ACUM_3F)]
   vol3 <- ACUM_3F
   vol3[,2:ncol(vol3)] <- abs(vol3[,2:ncol(vol3)])
-  vol3[,"mean"] <- rowMeans(vol3[,2:ncol(vol3)], na.rm = TRUE)
+  
+  vol3[,"mean"] <- vol3[,2]
+  if(ncol(vol3)>2) {
+    vol3[,"mean"] <- rowMeans(vol3[,2:ncol(vol3)], na.rm = TRUE)
+  } 
+  
   ncol <- ncol(ACUM_3F)
-  ACUM_3F[,"Mean"] <- rowMeans(ACUM_3F[,2:ncol(ACUM_3F)], na.rm = TRUE)
+  
+  ACUM_3F[,"Mean"] <- ACUM_3F[,2]
+  if (ncol(ACUM_3F)>2) {
+    ACUM_3F[,"Mean"] <- rowMeans(ACUM_3F[,2:ncol(ACUM_3F)], na.rm = TRUE)
+  }
+  
   num <- (LIE - LVE + 1)
   vol3[,"St Des"] <- sd(vol3[1:num, "mean"],na.rm = TRUE)
   vol3[,"Average"] <- mean(vol3[1:num, "mean"],na.rm = TRUE)
@@ -1451,11 +1470,21 @@ French_4F <- function(margen_dias_previo= 225,margen_dias_post= 50,LIE=170, LVE=
                             directorio = directorio,FD=FD)
   ACUM_4F[ACUM_4F == 0] <- NA
   ACUM_4F <- ACUM_4F[,colSums(is.na(ACUM_4F))<nrow(ACUM_4F)]
+  
   vol4 <- ACUM_4F
   vol4[,2:ncol(vol4)] <- abs(vol4[,2:ncol(vol4)])
-  vol4[,"mean"] <- rowMeans(vol4[,2:ncol(vol4)], na.rm = TRUE)
+  vol4[,"mean"] <- vol4[,2]
+  if(ncol(vol4)>2) {
+    vol4[,"mean"] <- rowMeans(vol4[,2:ncol(vol4)], na.rm = TRUE)
+  } 
+  
   ncol <- ncol(ACUM_4F)
-  ACUM_4F[,"Mean"] <- rowMeans(ACUM_4F[,2:ncol(ACUM_4F)], na.rm = TRUE)
+  
+  ACUM_4F[,"Mean"] <- ACUM_4F[,2]
+  if (ncol(ACUM_4F)>2) {
+    ACUM_4F[,"Mean"] <- rowMeans(ACUM_4F[,2:ncol(ACUM_4F)], na.rm = TRUE)
+  }
+  
   num <- (LIE - LVE + 1)
   vol4[,"St Des"] <- sd(vol4[1:num, "mean"],na.rm = TRUE)
   vol4[,"Average"] <- mean(vol4[1:num, "mean"],na.rm = TRUE)
@@ -1517,11 +1546,21 @@ French_5F <- function(margen_dias_previo= 225,margen_dias_post= 50,LIE=170, LVE=
   ACUM_5F <- as.data.frame(ACUM_5F)
   ACUM_5F[ACUM_5F == 0] <- NA
   ACUM_5F <- ACUM_5F[,colSums(is.na(ACUM_5F))<nrow(ACUM_5F)]
+  
   vol5 <- ACUM_5F
   vol5[,2:ncol(vol5)] <- abs(vol5[,2:ncol(vol5)])
-  vol5[,"mean"] <- rowMeans(vol5[,2:ncol(vol5)], na.rm = TRUE)
+  vol5[,"mean"] <- vol5[,2]
+  if(ncol(vol5)>2) {
+    vol5[,"mean"] <- rowMeans(vol5[,2:ncol(vol5)], na.rm = TRUE)
+  } 
+  
   ncol <- ncol(ACUM_5F)
-  ACUM_5F[,"Mean"] <- rowMeans(ACUM_5F[,2:ncol(ACUM_5F)], na.rm = TRUE)
+  
+  ACUM_5F[,"Mean"] <- ACUM_5F[,2]
+  if (ncol(ACUM_5F)>2) {
+    ACUM_5F[,"Mean"] <- rowMeans(ACUM_5F[,2:ncol(ACUM_5F)], na.rm = TRUE)
+  }
+  
   num <- (LIE - LVE + 1)
   CINCF <<- ACUM_5F
   NUM <<- num
@@ -1564,37 +1603,54 @@ French_5F <- function(margen_dias_previo= 225,margen_dias_post= 50,LIE=170, LVE=
 }
 
 ##### FUNCIONES PARA EL TEST DE CORRADO #####
-est_corrado <-function(data, col=NULL) {
+est_corrado89 <-function(data, col=NULL) {
   if(is.null(col)) col <- ncol(data)
   
-  Corrado <- data[,2:col]
+  Corrado <- as_tibble(data)[,2:col]
+  print(str(Corrado))
+  
   rs <- rank(Corrado[, 1], na.last = "keep") + (nrow(Corrado) - rank(-Corrado[, 1], na.last = "keep") - rank(Corrado[, 1], na.last = "keep") + 1)/2
   resCorrado <- matrix(rs)
-  for (i in 2:ncol(Corrado)) {
-    rs <- rank(Corrado[, i], na.last = "keep") + (nrow(Corrado) - rank(-Corrado[, i], na.last = "keep") - rank(Corrado[, i], na.last = "keep") + 1)/2
-    resCorrado <- cbind(resCorrado, rs)
+  if(ncol(Corrado) > 1) {
+    for (i in 2:ncol(Corrado)) {
+      rs <- rank(Corrado[, i], na.last = "keep") + (nrow(Corrado) - rank(-Corrado[, i], na.last = "keep") - rank(Corrado[, i], na.last = "keep") + 1)/2
+      resCorrado <- cbind(resCorrado, rs)
+    }
   }
+  
   resCorrado <- as.data.frame(resCorrado)
-  promedio <- rowMeans(resCorrado, na.rm = TRUE) - mean(colMeans(resCorrado, na.rm = TRUE))
+  promedio <- resCorrado[,1] - mean(colMeans(resCorrado, na.rm = TRUE))
+  if(ncol(resCorrado) > 1) {
+    promedio <- rowMeans(resCorrado, na.rm = TRUE) - mean(colMeans(resCorrado, na.rm = TRUE))
+  }
   est <- sqrt(sum((promedio^2)/nrow(resCorrado)))
+  
   return(list(promedio, est))
 }
 
-est_corrado92 <-function(data, col) {
-  Corrado <- data[,2:col]
+est_corrado <-function(data, col) {
+  Corrado <- as_tibble(data)[,2:col]
   rs <- rank(Corrado[, 1], na.last = "keep", ties.method = "average")
   U <- rs/(1+length(na.omit(rs)))
-  resCorrado <- matrix(U)
-  for (i in 2:ncol(Corrado)) {
-    rs <- rank(Corrado[, i], na.last = "keep", ties.method = "average")
-    U <- rs/(1+length(na.omit(rs)))
-    resCorrado <- cbind(resCorrado, U)
-  }
-  resCorrado <- as.data.frame(resCorrado)
-  resCorradoEXT <<- resCorrado
-  t3den <- sqrt(mean((rowSums(resCorrado-0.5)/sqrt(rowSums(!is.na(resCorrado))))^2,na.rm=T))
-  t3num <- rowSums(resCorrado-0.5,na.rm=T)/(sqrt(rowSums(!is.na(resCorrado))))
+  resCorrado <- as_tibble(U)
   
+  if(ncol(Corrado)>1) {
+    for (i in 2:ncol(Corrado)) {
+      rs <- rank(Corrado[, i], na.last = "keep", ties.method = "average")
+      U <- rs/(1+length(na.omit(rs)))
+      resCorrado <- cbind(resCorrado, U)
+    }
+  }
+  
+  resCorradoEXT <<- resCorrado
+  
+  t3den <- sqrt(mean(pull(resCorrado[,1]-0.5),na.rm=T))
+  t3num <- pull(resCorrado[,1]-0.5)
+  
+  if(ncol(resCorrado)>1) {
+    t3den <- sqrt(mean((rowSums(resCorrado-0.5)/sqrt(rowSums(!is.na(resCorrado))))^2,na.rm=T))
+    t3num <- rowSums(resCorrado-0.5,na.rm=T)/(sqrt(rowSums(!is.na(resCorrado))))
+  }
   return(list(t3num, t3den))
 }
 
