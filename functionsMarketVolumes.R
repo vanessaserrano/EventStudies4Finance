@@ -53,7 +53,7 @@ ANALISIS_DOC_VOLUMEN <- function(datos,LSPE1=95,LSPE2=95,format="%d/%m/%Y",direc
   datos$Fecha_evento_def <- as.Date(NA,format=format)
   datos$Fecha_LSPE2 <- as.Date(NA,format=format)
   datos$Fecha_LSPE1 <- as.Date(NA,format=format)
-  datos$ControlEvento <- NA
+  datos$ControlEvento <- "OK"
   datos$Comentarios <- NA
   
   i=1
@@ -89,7 +89,7 @@ ANALISIS_DOC_VOLUMEN <- function(datos,LSPE1=95,LSPE2=95,format="%d/%m/%Y",direc
     #   fecha_buscar <- format(as.Date(fecha_buscar,format = '%d/%m/%Y') + 1, format='%d/%m/%Y')
     # }
 
-    fecha_buscar <- datos_empresa$Date[1]
+    fecha_buscar <- max(datos_empresa$Date, na.rm=T)
     if(length(datos_empresa$Date[datos_empresa$Date >= event_day])>0) {
       fecha_buscar <- min(datos_empresa$Date[datos_empresa$Date >= event_day])
     }
@@ -100,7 +100,7 @@ ANALISIS_DOC_VOLUMEN <- function(datos,LSPE1=95,LSPE2=95,format="%d/%m/%Y",direc
     
     fila_evento_empresa <- which(datos_empresa$Date == fecha_buscar)
     if(fila_evento_empresa < abs(LSPE1)){
-      datos$ControlEvento[i]="ANULADA POR FALTA DE DATOS"
+      # datos$ControlEvento[i]="ANULADA POR FALTA DE DATOS"
       datos$Fecha_LSPE2[i] <- datos_empresa[fila_evento_empresa + LSPE2,"Date"]
     } else {
       datos$Fecha_LSPE2[i] <- datos_empresa[fila_evento_empresa + LSPE2,"Date"]
@@ -113,24 +113,27 @@ ANALISIS_DOC_VOLUMEN <- function(datos,LSPE1=95,LSPE2=95,format="%d/%m/%Y",direc
                                   datos$DATE," a ",datos$Fecha_evento_def),
          "--")
   
-  if(is.na(datos$ControlEvento[1])){
-    datos$ControlEvento[1]="OK"}
-  
-  if(nrow(datos)>1) {
-    for(i in 2:nrow(datos)){
-      if(is.na(datos$ControlEvento[i])) {
-        if(datos[i,1]==datos[i-1,1] && 
-           (is.na(datos$Fecha_LSPE1[i]) ||
-            is.na(datos$Fecha_LSPE2[i]) ||
-            (datos$Fecha_LSPE1[i] - datos$Fecha_LSPE2[i-1])< 0)){
+  for(i in 1:nrow(datos)){
+    if(is.na(datos$Fecha_LSPE1[i]) ||
+        is.na(datos$Fecha_LSPE2[i])){
+      datos$ControlEvento[i]="ANULADA POR FALTA DE DATOS"
+    } else {
+      if(i>1 && datos[i,1]==datos[i-1,1] && 
+         (is.na(datos$Fecha_LSPE1[i]) ||
+          is.na(datos$Fecha_evento_def[i-1]) ||
+          (datos$Fecha_LSPE1[i] - datos$Fecha_evento_def[i-1]) <= 0)){
           #La empresa es la misma que la fila anterior
           datos$ControlEvento[i]="ERRONEO"
-        } else {
-          datos$ControlEvento[i]="OK"
-        }
       }
-    }#final del segundo FOR para determinar finalmente quÃ© eventos son analizables
-  }
+      if(i<nrow(datos) && datos[i,1]==datos[i+1,1] && 
+         (is.na(datos$Fecha_LSPE2[i]) ||
+          is.na(datos$Fecha_evento_def[i+1]) ||
+          (datos$Fecha_evento_def[i+1] - datos$Fecha_LSPE2[i]) <= 0)){
+        #La empresa es la misma que la fila anterior
+        datos$ControlEvento[i]="ERRONEO"
+      }
+    }
+  }#final del segundo FOR para determinar finalmente qué eventos son analizables
   
   return(datos)
 }

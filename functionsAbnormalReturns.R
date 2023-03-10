@@ -124,7 +124,7 @@ analisisRentabilidad <- function(datos,datos_mercados="datos_mercados.txt", form
   datos$Fecha_evento_def <- as.Date(NA,format=format)
   datos$Fecha_LIE <- as.Date(NA,format=format)
   datos$Fecha_LVE <- as.Date(NA,format=format)
-  datos$ControlEvento <- NA
+  datos$ControlEvento <- "OK"
   datos$Comentarios <- NA
   
   
@@ -165,7 +165,7 @@ analisisRentabilidad <- function(datos,datos_mercados="datos_mercados.txt", form
     #Comprobamos que la fecha evento puede ser esa, sino sumamos dias hasta encontrar una en comun entre mercado y empresa
     event_day = as.Date(datos[i,2],format='%d/%m/%Y')
     
-    fecha_buscar <- datos_empresa$Date[1]
+    fecha_buscar <- max(datos_empresa$Date, na.rm=T)
     datosCTyMERC <- datos_empresa$Date[datos_empresa$Date %in% df_aux$Date]
     datosCTyMERC <- datosCTyMERC[datosCTyMERC >= event_day]
     
@@ -178,7 +178,7 @@ analisisRentabilidad <- function(datos,datos_mercados="datos_mercados.txt", form
     fila_evento_empresa <- which(datos_empresa$Date == fecha_buscar)
     
     if(fila_evento_empresa < LIE){ #No hay suficientes datos para hacer la estimación...
-      datos$ControlEvento[i]="ANULADA POR FALTA DE DATOS"
+      # datos$ControlEvento[i]="ANULADA POR FALTA DE DATOS"
       datos$Fecha_LVE[i] <- datos_empresa[fila_evento_empresa + LVE,"Date"]
     } else { #Asignamos las fechas de LVE y LIE en base a fechas de cotización de la matriz 
       datos$Fecha_LVE[i] <- datos_empresa[fila_evento_empresa + LVE,"Date"]
@@ -191,25 +191,27 @@ analisisRentabilidad <- function(datos,datos_mercados="datos_mercados.txt", form
                                     datos[,2]," a ",datos$Fecha_evento_def),
                               "--")
   
-  if(is.na(datos$ControlEvento[1])==T){
-    datos$ControlEvento[1]="OK"
-  }
-  
-  if(nrow(datos)>1) {
-    for(i in 2:nrow(datos)){
-      if(is.na(datos$ControlEvento[i]) == T){
-        if(datos[i,1]==datos[i-1,1] &&
-           (is.na(datos$Fecha_LIE[i]) ||
-            is.na(datos$Fecha_LVE[i]) ||
-           (datos$Fecha_LIE[i] - datos$Fecha_LVE[i-1])< 0)){
-          #La empresa es la misma que la fila anterior
-          datos$ControlEvento[i]="ERRONEO"
-        } else {
-          datos$ControlEvento[i]="OK"
-        }
+  for(i in 1:nrow(datos)){
+    if(is.na(datos$Fecha_LIE[i]) ||
+       is.na(datos$Fecha_LVE[i])){
+      datos$ControlEvento[i]="ANULADA POR FALTA DE DATOS"
+    } else {
+      if(i>1 && datos[i,1]==datos[i-1,1] && 
+         (is.na(datos$Fecha_LIE[i]) ||
+          is.na(datos$Fecha_evento_def[i-1]) ||
+          (datos$Fecha_LIE[i] - datos$Fecha_evento_def[i-1]) <= 0)){
+        #La empresa es la misma que la fila anterior
+        datos$ControlEvento[i]="ERRONEO"
       }
-    } #final del segundo FOR para determinar finalmente quÃ© eventos son analizables
-  }
+      if(i<nrow(datos) && datos[i,1]==datos[i+1,1] && 
+         (is.na(datos$Fecha_LVE[i]) ||
+          is.na(datos$Fecha_evento_def[i+1]) ||
+          (datos$Fecha_evento_def[i+1] - datos$Fecha_LVE[i]) <= 0)){
+        #La empresa es la misma que la fila anterior
+        datos$ControlEvento[i]="ERRONEO"
+      }
+    }
+  }#final del segundo FOR para determinar finalmente qué eventos son analizables
   
   return(datos) # Para que nos devuelva la matriz con los eventos y las conclusiones del anÃ¡lisis
 }
