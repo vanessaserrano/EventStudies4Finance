@@ -113,7 +113,9 @@ analisisRentabilidad <- function(datos,datos_mercados="datos_mercados.txt", form
   
   ##CARGA DE DATOS DE EVENTOS Y EMPRESAS ------------------------------------------------------------------------------------
   # datos <- read.table(datos,sep="\t",header=T,comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),quote="",stringsAsFactors = FALSE,dec=".")
-  datos <- read.table(datos,sep="\t",header=T,na.strings=c("","#N/A","N/A","NULL","-","NA"),quote="",stringsAsFactors = FALSE,dec=".")
+  datos <- read.table(datos,sep="\t",header=T,
+                      na.strings=c("","#N/A","N/A","NULL","-","NA"),
+                      quote="", stringsAsFactors = FALSE, dec=".")
   #Uniformamos el formato de fechas de toda la columna de eventos
   datos[,2] <- as.Date(datos[,2],format='%d/%m/%Y')
   #Ordenamos la matriz por orden alfab?tico de empresa y posteriormente por fecha de evento
@@ -162,35 +164,32 @@ analisisRentabilidad <- function(datos,datos_mercados="datos_mercados.txt", form
     
     #Comprobamos que la fecha evento puede ser esa, sino sumamos dias hasta encontrar una en comun entre mercado y empresa
     event_day = as.Date(datos[i,2],format='%d/%m/%Y')
-    fecha_buscar <- event_day
     
-    while(is_empty(which(datos_empresa$Date == as.Date(fecha_buscar,format='%d/%m/%Y')))==T
-          || is_empty(which(df_aux$Date == as.Date(fecha_buscar,format='%d/%m/%Y')))==T){
-      fecha_buscar <- format(as.Date(fecha_buscar,format = '%d/%m/%Y')+1, format='%d/%m/%Y')
-    }
+    fecha_buscar <- datos_empresa$Date[1]
+    datosCTyMERC <- datos_empresa$Date[datos_empresa$Date %in% df_aux$Date]
+    datosCTyMERC <- datosCTyMERC[datosCTyMERC >= event_day]
     
-    #A?adimos una nota en consola o comentario en la matriz en caso de tener que modificar fecha evento...
-    if(!event_day==fecha_buscar){
-      datos$Comentarios[i] <- paste("Fecha del evento de ",empresa,"modificada, pasa de ",event_day," a ",fecha_buscar)#Comentario en la columna "Comentarios" de la matriz
-      event_day=fecha_buscar
-    } else {
-      datos$Comentarios[i]<- "--"
+    if(length(datosCTyMERC)>0) {
+      fecha_buscar <- min(datosCTyMERC)
     }
-    datos$Fecha_evento_def[i]<-as.Date(event_day,format=format) #incoroporamos la fecha final en campo fecha_definitiva...
+    datos$Fecha_evento_def[i] <- fecha_buscar
     
     #Calculo la fila de la matriz datos_empresa donde se encuentra el dia del evento
+    fila_evento_empresa <- which(datos_empresa$Date == fecha_buscar)
     
-    fila_evento_empresa <- which(datos_empresa$Date == as.Date(event_day,format=format))
-    
-    if(fila_evento_empresa < LIE){ #No hay suficientes datos para hacer la estimaci?n...
+    if(fila_evento_empresa < LIE){ #No hay suficientes datos para hacer la estimación...
       datos$ControlEvento[i]="ANULADA POR FALTA DE DATOS"
       datos$Fecha_LVE[i] <- datos_empresa[fila_evento_empresa + LVE,"Date"]
-    } else { #Asignamos las fechas de LVE y LIE en base a fechas de cotizaci?n de la matriz 
+    } else { #Asignamos las fechas de LVE y LIE en base a fechas de cotización de la matriz 
       datos$Fecha_LVE[i] <- datos_empresa[fila_evento_empresa + LVE,"Date"]
       datos$Fecha_LIE[i] <- datos_empresa[fila_evento_empresa - LIE,"Date"]
     }
-  }
-  #Final del primer FOR para establecer fecha_evento_def LVE y LIE
+  } #Final del primer FOR para establecer fecha_evento_def LVE y LIE
+  
+  datos$Comentarios <- ifelse(datos[,2]!=datos$Fecha_evento_def,
+                              paste("Fecha del evento de ",datos$COMPANY,"modificada, pasa de ",
+                                    datos[,2]," a ",datos$Fecha_evento_def),
+                              "--")
   
   if(is.na(datos$ControlEvento[1])==T){
     datos$ControlEvento[1]="OK"
@@ -199,7 +198,11 @@ analisisRentabilidad <- function(datos,datos_mercados="datos_mercados.txt", form
   if(nrow(datos)>1) {
     for(i in 2:nrow(datos)){
       if(is.na(datos$ControlEvento[i]) == T){
-        if(datos[i,1]==datos[i-1,1] && (datos$Fecha_LIE[i] - datos$Fecha_LVE[i-1])< 0){#La empresa es la misma que la fila anterior
+        if(datos[i,1]==datos[i-1,1] &&
+           (is.na(datos$Fecha_LIE[i]) ||
+            is.na(datos$Fecha_LVE[i]) ||
+           (datos$Fecha_LIE[i] - datos$Fecha_LVE[i-1])< 0)){
+          #La empresa es la misma que la fila anterior
           datos$ControlEvento[i]="ERRONEO"
         } else {
           datos$ControlEvento[i]="OK"
@@ -1644,8 +1647,8 @@ est_corrado <-function(data, col) {
   
   resCorradoEXT <<- resCorrado
   
-  t3den <- sqrt(mean(pull(resCorrado[,1]-0.5),na.rm=T))
-  t3num <- pull(resCorrado[,1]-0.5)
+  t3den <- sqrt(mean(pull(resCorrado[,1])-0.5,na.rm=T))
+  t3num <- pull(resCorrado[,1])-0.5
   
   if(ncol(resCorrado)>1) {
     t3den <- sqrt(mean((rowSums(resCorrado-0.5)/sqrt(rowSums(!is.na(resCorrado))))^2,na.rm=T))

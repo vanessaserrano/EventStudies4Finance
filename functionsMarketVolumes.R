@@ -6,24 +6,19 @@
 #documentoEventos="datos_eventos.txt"
 
 AnalisisDirectorio <- function(directorioDatos,documentoEventos){
+  # TODO: CREO QUE NO SE USA -- ELIMINAR?
   
-  # setwd(directorioDatos)
+  EMPRESAS_MUESTRA <- read.table(documentoEventos,sep="\t",header=T,
+                                 comment.char="",
+                                 na.strings=c("","#N/A","N/A","NULL","-","NA"),
+                                 quote="",stringsAsFactors = FALSE,dec=".")
+  EMPRESAS_MUESTRA <- unique(EMPRESAS_MUESTRA[,1])
   
-  EMPRESAS_MUESTRA <- read.table(documentoEventos,sep="\t",header=T,comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),quote="",stringsAsFactors = FALSE,dec=".")
-  colnames(EMPRESAS_MUESTRA) <- c("COMPANY","DATE","MARKET")
-  EMPRESAS_MUESTRA <- data.frame(EMPRESAS=unique(EMPRESAS_MUESTRA[,1]))
+  EMPRESAS_DIRECTORIO <- list.files(directorioDatos,pattern = ".txt")
   
-  EMPRESAS_DIRECTORIO <- c(unique(list.files(directorioDatos,pattern = ".txt")))
-  
-  RESULTADO <- data.frame(EMPRESA=EMPRESAS_MUESTRA$EMPRESAS, DIRECTORIO =NA)
-  #Empresas que estan en la muestra y no en el directorio
-  for(i in 1:length(EMPRESAS_MUESTRA$EMPRESAS)){
-    if(paste(as.character(EMPRESAS_MUESTRA$EMPRESAS[i]),'.txt',sep='') %in% EMPRESAS_DIRECTORIO){
-      RESULTADO$DIRECTORIO[i] <- "SI"
-    } else{
-      RESULTADO$DIRECTORIO[i] <- "NO"
-    }
-  }
+  RESULTADO <- data.frame(EMPRESA=EMPRESAS_MUESTRA,
+    DIRECTORIO = ifelse(paste0(EMPRESAS_MUESTRA,'.txt') %in% EMPRESAS_DIRECTORIO,
+                        "SI","NO"))
 }
 
 #Ejemplo:
@@ -49,7 +44,10 @@ AnalisisDirectorio <- function(directorioDatos,documentoEventos){
 # Attention format is hard-coded (sometimes)
 ANALISIS_DOC_VOLUMEN <- function(datos,LSPE1=95,LSPE2=95,format="%d/%m/%Y",directorio){
   
-  datos <- read.table(datos,sep="\t",header=T,comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),quote="",stringsAsFactors = FALSE,dec=".")
+  datos <- read.table(datos,sep="\t",header=T,comment.char="",
+                      na.strings=c("","#N/A","N/A","NULL","-","NA"),
+                      quote="",stringsAsFactors = FALSE,dec=".")
+  
   datos[,2] <- as.Date(datos[,2],format='%d/%m/%Y')
   datos <- datos[order(datos[,1],datos[,2],decreasing=F),]
   datos$Fecha_evento_def <- as.Date(NA,format=format)
@@ -76,7 +74,7 @@ ANALISIS_DOC_VOLUMEN <- function(datos,LSPE1=95,LSPE2=95,format="%d/%m/%Y",direc
       empresa <- datos[i,1]
       datos_empresa <- read.table(paste(directorio,'/',as.character(empresa),'.txt',sep = ''), comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".")
       colnames(datos_empresa) <- c("Date","PX_LAST","PX_VOLUME")
-      datos_empresa <- datos_empresa[!is.na(datos_empresa[,"PX_LAST"]),]
+      # datos_empresa <- datos_empresa[!is.na(datos_empresa[,"PX_LAST"]),]
       datos_empresa <- datos_empresa[!is.na(datos_empresa[,"PX_VOLUME"]),]
       datos_empresa<- datos_empresa[format(datos_empresa[,"Date"],format='%d/%m')!=format(as.Date("01/01/2000",format='%d/%m/%Y'),'%d/%m'),]
       datos_empresa<- datos_empresa[format(datos_empresa[,"Date"],format='%d/%m')!=format(as.Date("25/12/2000",format='%d/%m/%Y'),'%d/%m'),]
@@ -85,24 +83,22 @@ ANALISIS_DOC_VOLUMEN <- function(datos,LSPE1=95,LSPE2=95,format="%d/%m/%Y",direc
     
     #Comprobamos que la fecha evento puede ser esa, sino sumamos dias hasta encontrar una en comun entre mercado y empresa
     event_day <- as.Date(datos[i,2],format='%d/%m/%Y')
-    fecha_buscar <- event_day
+    # fecha_buscar <- event_day
+    # 
+    # while(is_empty(which(datos_empresa$Date == as.Date(fecha_buscar,format='%d/%m/%Y')))==T){
+    #   fecha_buscar <- format(as.Date(fecha_buscar,format = '%d/%m/%Y') + 1, format='%d/%m/%Y')
+    # }
 
-    while(is_empty(which(datos_empresa$Date == as.Date(fecha_buscar,format='%d/%m/%Y')))==T){
-      fecha_buscar <- format(as.Date(fecha_buscar,format = '%d/%m/%Y') + 1, format='%d/%m/%Y')
+    fecha_buscar <- datos_empresa$Date[1]
+    if(length(datos_empresa$Date[datos_empresa$Date >= event_day])>0) {
+      fecha_buscar <- min(datos_empresa$Date[datos_empresa$Date >= event_day])
     }
     
-    if(event_day!=fecha_buscar){
-      datos$Comentarios[i] <- paste("Fecha del evento de ",empresa,"modificada, pasa de ",
-                                    event_day," a ",fecha_buscar)
-      event_day <- fecha_buscar
-    } else {
-      datos$Comentarios[i]<- "--"
-    }
-    datos$Fecha_evento_def[i]<-as.Date(event_day,format=format)
+    datos$Fecha_evento_def[i]<-fecha_buscar
     
     # Calculo la fila de la matriz datos_empresa donde se encuentra el dia del evento
     
-    fila_evento_empresa <- which(datos_empresa$Date == as.Date(event_day,format=format))
+    fila_evento_empresa <- which(datos_empresa$Date == fecha_buscar)
     if(fila_evento_empresa < abs(LSPE1)){
       datos$ControlEvento[i]="ANULADA POR FALTA DE DATOS"
       datos$Fecha_LSPE2[i] <- datos_empresa[fila_evento_empresa + LSPE2,"Date"]
@@ -111,16 +107,22 @@ ANALISIS_DOC_VOLUMEN <- function(datos,LSPE1=95,LSPE2=95,format="%d/%m/%Y",direc
       datos$Fecha_LSPE1[i] <- datos_empresa[fila_evento_empresa - LSPE1,"Date"]
     }
   }  # Final del primer FOR para establecer fecha_evento_def LSV y LIE
-
-  i=2
   
-  if(is.na(datos$ControlEvento[1])==T){
+  datos$Comentarios <- ifelse(datos[,2]!=datos$Fecha_evento_def,
+         paste("Fecha del evento de ",datos$COMPANY,"modificada, pasa de ",
+                                  datos$DATE," a ",datos$Fecha_evento_def),
+         "--")
+  
+  if(is.na(datos$ControlEvento[1])){
     datos$ControlEvento[1]="OK"}
   
   if(nrow(datos)>1) {
     for(i in 2:nrow(datos)){
-      if(is.na(datos$ControlEvento[i]) == T) {
-        if(datos[i,1]==datos[i-1,1] && (datos$Fecha_LSPE1[i] - datos$Fecha_LSPE2[i-1])< 0){
+      if(is.na(datos$ControlEvento[i])) {
+        if(datos[i,1]==datos[i-1,1] && 
+           (is.na(datos$Fecha_LSPE1[i]) ||
+            is.na(datos$Fecha_LSPE2[i]) ||
+            (datos$Fecha_LSPE1[i] - datos$Fecha_LSPE2[i-1])< 0)){
           #La empresa es la misma que la fila anterior
           datos$ControlEvento[i]="ERRONEO"
         } else {

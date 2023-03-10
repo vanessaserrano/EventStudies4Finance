@@ -125,8 +125,8 @@ server <- function(input, output, session) {
     } else if (input$Function == 'Return events analysis') {
       ## Return events analysis ####
       withProgress(message = paste('Processing',input$Function, sep=" "), value = 0, {
-        AnalisisDirectorio(directorioDatos = myInputDir1,
-                           documentoEventos = pathE$datapath)
+        # AnalisisDirectorio(directorioDatos = myInputDir1,
+        #                    documentoEventos = pathE$datapath)
         AN_DOC_RENT <-
           analisisRentabilidad(
             datos = pathE$datapath,
