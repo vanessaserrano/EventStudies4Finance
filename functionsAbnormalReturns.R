@@ -1,5 +1,5 @@
 # Antigua función leerTabla
-rentabilidadEmpresa <- function(nombreEmpresa, directorio){
+.rentabilidadEmpresa <- function(nombreEmpresa, directorio){
   # datos <-read.table(paste(directorio,'/',nombreEmpresa,'.txt',sep=''), comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".")
   datos <-read.table(paste(directorio,'/',nombreEmpresa,'.txt',sep=''), na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".")
   colnames(datos)<-c("Date","PX_LAST","PX_VOLUME")
@@ -9,8 +9,10 @@ rentabilidadEmpresa <- function(nombreEmpresa, directorio){
   return(datos)
 }
 
+rentabilidadEmpresa <- memoise(.rentabilidadEmpresa)
+
 # Antigua función rentabilidad
-rentabilidadMercado <- function(archivoDatosMercado, columna){ #Calcula la rentabilidad de una columna dada y devuelve dos columnas: Fecha y Rentabilidad
+.rentabilidadMercado <- function(archivoDatosMercado, columna){ #Calcula la rentabilidad de una columna dada y devuelve dos columnas: Fecha y Rentabilidad
   #archivoDatosMercado="datos_mercados.txt"
   #columna="IGBM"
   datos <-read.table(archivoDatosMercado, na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".")
@@ -21,6 +23,9 @@ rentabilidadMercado <- function(archivoDatosMercado, columna){ #Calcula la renta
   datos$Rentabilidad[2:nrow(datos)] <- log(as.numeric(datos[2:nrow(datos),columna]) / as.numeric(datos[1:(nrow(datos)-1),columna]))  
   return(datos[,c("Date","Rentabilidad")])
 }
+
+rentabilidadMercado <- memoise(.rentabilidadMercado)
+
 
 comprobacionesFactores <- function (documentoEventos,
                                     directorioDatos,
@@ -68,7 +73,8 @@ comprobacionesFactores <- function (documentoEventos,
 }
 
 # Antigua función ANALISIS_DOC_RENTABILIDAD
-analisisRentabilidad <- function(datos,datos_mercados="datos_mercados.txt", format="%d/%m/%Y",LIE=170,LVE=10,directorio,FD=NULL){
+.analisisRentabilidad <- function(datos,datos_mercados="datos_mercados.txt",
+                                 format="%d/%m/%Y",LIE=170,LVE=10,directorio,FD=NULL){
 
   if (!is.null(FD)) {
     datos_eventos <- read.table(datos,na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".",stringsAsFactors = FALSE)
@@ -216,9 +222,15 @@ analisisRentabilidad <- function(datos,datos_mercados="datos_mercados.txt", form
   return(datos) # Para que nos devuelva la matriz con los eventos y las conclusiones del anÃ¡lisis
 }
 
+analisisRentabilidad <- memoise(.analisisRentabilidad)
+
 EMPRESAS_SMB <- function(datos_eventos,datos_muestra,fecha_evento,MARKET,porc_empr_SMB=0.5){
-  #Año del evento
   YEAR <- format(as.Date(fecha_evento,format='%d/%m/%Y'),'%Y')
+  EMPRESAS_SMB_YEAR(datos_eventos,datos_muestra,YEAR,MARKET,porc_empr_SMB)
+}
+    
+.EMPRESAS_SMB_YEAR <- function(datos_eventos,datos_muestra,
+                               YEAR,MARKET,porc_empr_SMB=0.5){
   #Lectura de los datos asociados a datos_muestra... (documento de texto)
   # datos_muestra<-read.table(datos_muestra, comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".",stringsAsFactors = F)
   datos_muestra<-read.table(datos_muestra, na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".",stringsAsFactors = F)
@@ -228,6 +240,7 @@ EMPRESAS_SMB <- function(datos_eventos,datos_muestra,fecha_evento,MARKET,porc_em
   # datos_eventos <- read.table(datos_eventos, comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".",stringsAsFactors = F)
   datos_eventos <- read.table(datos_eventos, na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".",stringsAsFactors = F)
   colnames(datos_eventos) <- c("COMPANY","DATE","MARKET")
+  
   #Filtraje de las empresas que han tenido eventos en el año del evento que estudiamos
   datos_eventos <- datos_eventos[format(as.Date(datos_eventos$DATE,format='%d/%m/%Y'),'%Y') == YEAR,] 
   #Selección solo de las empresas que tienen datos y de las que pertenecen al mercado y el año que se solicita
@@ -253,9 +266,19 @@ EMPRESAS_SMB <- function(datos_eventos,datos_muestra,fecha_evento,MARKET,porc_em
   return(CRIT_CAP)
 }
 
-EMPRESAS_HML <- function(datos_muestra="datos_muestra.txt",datos_eventos="datos_eventos.txt",fecha_evento,MARKET,porc_empr_HML=0.3){
-  #Año del evento
+EMPRESAS_SMB_YEAR <- memoise(.EMPRESAS_SMB_YEAR)
+
+
+EMPRESAS_HML <- function(datos_muestra="datos_muestra.txt",datos_eventos="datos_eventos.txt",
+                         fecha_evento,MARKET,porc_empr_HML=0.3){
   YEAR <- format(as.Date(fecha_evento,format='%d/%m/%Y'),'%Y')
+  EMPRESAS_HML_YEAR(datos_muestra,datos_eventos,
+                    YEAR,MARKET,porc_empr_HML)
+}
+  
+.EMPRESAS_HML_YEAR <- function(datos_muestra="datos_muestra.txt",
+                              datos_eventos="datos_eventos.txt",
+                              YEAR,MARKET,porc_empr_HML=0.3){
   #Lectura de los datos asociados a datos_muestra... (documento de texto)
   # datos_muestra<-read.table(datos_muestra, comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".",stringsAsFactors = F)
   datos_muestra<-read.table(datos_muestra, na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".",stringsAsFactors = F)
@@ -265,6 +288,7 @@ EMPRESAS_HML <- function(datos_muestra="datos_muestra.txt",datos_eventos="datos_
   # datos_eventos <- read.table(datos_eventos, comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".",stringsAsFactors = F)
   datos_eventos <- read.table(datos_eventos, na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".",stringsAsFactors = F)
   colnames(datos_eventos) <- c("COMPANY","DATE","MARKET")
+  
   #Filtraje de las empresas que han tenido eventos en el año del evento que estudiamos
   datos_eventos <- datos_eventos[format(as.Date(datos_eventos$DATE,format='%d/%m/%Y'),'%Y') == YEAR,] 
   #Selección solo de las empresas que tienen datos y de las que pertenecen al mercado y el año que se solicita
@@ -291,9 +315,15 @@ EMPRESAS_HML <- function(datos_muestra="datos_muestra.txt",datos_eventos="datos_
   return(CRIT_NET_EQUITYCAP)
 }
 
-EMPRESAS_RMW <- function(fecha_evento, MARKET,datos_muestra="datos_muestra.txt", datos_eventos="datos_eventos.txt",porc_empr_RMW=0.3){
-  #Año del evento
+EMPRESAS_HML_YEAR <- memoise(.EMPRESAS_HML_YEAR)
+
+EMPRESAS_RMW <- function(fecha_evento, MARKET,datos_muestra="datos_muestra.txt",
+                         datos_eventos="datos_eventos.txt",porc_empr_RMW=0.3){
   YEAR <- format(as.Date(fecha_evento,format='%d/%m/%Y'),'%Y')
+  EMPRESAS_RMW_YEAR(YEAR, MARKET, datos_muestra, datos_eventos, porc_empr_RMW)
+}
+
+.EMPRESAS_RMW_YEAR <- function(YEAR, MARKET,datos_muestra="datos_muestra.txt", datos_eventos="datos_eventos.txt",porc_empr_RMW=0.3){
   #Lectura de los datos asociados a datos_muestra... (documento de texto)
   # datos_muestra<-read.table(datos_muestra, comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".",stringsAsFactors = F)
   datos_muestra<-read.table(datos_muestra, na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".",stringsAsFactors = F)
@@ -303,6 +333,7 @@ EMPRESAS_RMW <- function(fecha_evento, MARKET,datos_muestra="datos_muestra.txt",
   # datos_eventos <- read.table(datos_eventos, comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".",stringsAsFactors = F)
   datos_eventos <- read.table(datos_eventos, na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".",stringsAsFactors = F)
   colnames(datos_eventos) <- c("COMPANY","DATE","MARKET")
+
   #Filtraje de las empresas que han tenido eventos en el año del evento que estudiamos
   datos_eventos <- datos_eventos[format(as.Date(datos_eventos$DATE,format='%d/%m/%Y'),'%Y') == YEAR,] 
   #Selección solo de las empresas que tienen datos y de las que pertenecen al mercado y el año que se solicita
@@ -329,9 +360,15 @@ EMPRESAS_RMW <- function(fecha_evento, MARKET,datos_muestra="datos_muestra.txt",
   return(CRIT_OP)
 }
 
+EMPRESAS_RMW_YEAR <- memoise(.EMPRESAS_RMW_YEAR)
+
+
 EMPRESAS_CMA <- function(fecha_evento, MARKET, datos_muestra="datos_muestra.txt", datos_eventos="datos_eventos.txt",porc_empr_CMA=0.3){
-  #Año del evento
   YEAR <- format(as.Date(fecha_evento,format='%d/%m/%Y'),'%Y')
+  EMPRESAS_CMA_YEAR(YEAR, MARKET, datos_muestra, datos_eventos,porc_empr_CMA)
+}
+
+.EMPRESAS_CMA_YEAR <- function(YEAR, MARKET, datos_muestra="datos_muestra.txt", datos_eventos="datos_eventos.txt",porc_empr_CMA=0.3){
   #Lectura de los datos asociados a datos_muestra... (documento de texto)
   # datos_muestra<-read.table(datos_muestra, comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".",stringsAsFactors = F)
   datos_muestra<-read.table(datos_muestra, na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".",stringsAsFactors = F)
@@ -341,6 +378,7 @@ EMPRESAS_CMA <- function(fecha_evento, MARKET, datos_muestra="datos_muestra.txt"
   # datos_eventos <- read.table(datos_eventos, comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".",stringsAsFactors = F)
   datos_eventos <- read.table(datos_eventos, na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".",stringsAsFactors = F)
   colnames(datos_eventos) <- c("COMPANY","DATE","MARKET")
+  
   #Filtraje de las empresas que han tenido eventos en el año del evento que estudiamos
   datos_eventos <- datos_eventos[format(as.Date(datos_eventos$DATE,format='%d/%m/%Y'),'%Y') == YEAR,] 
   #Selección solo de las empresas que tienen datos y de las que pertenecen al mercado y el año que se solicita
@@ -365,10 +403,17 @@ EMPRESAS_CMA <- function(fecha_evento, MARKET, datos_muestra="datos_muestra.txt"
   return(CRIT_INV)
 }
 
-EMPRESAS_UMD <- function(fecha_evento, MARKET, datos_muestra="datos_muestra.txt", datos_eventos="datos_eventos.txt",porc_empr_UMD=0.3){
+EMPRESAS_CMA_YEAR <- memoise(.EMPRESAS_CMA_YEAR)
+
+
+EMPRESAS_UMD <- function(fecha_evento, MARKET, datos_muestra="datos_muestra.txt",
+                         datos_eventos="datos_eventos.txt",porc_empr_UMD=0.3){
   #Año del evento
-  
-  YEAR <- format(as.Date(fecha_evento,format='%d/%m/%Y'),'%Y')
+  YEAR <- format(fecha_evento,'%Y')
+  EMPRESAS_UMD_YEAR(YEAR, MARKET, datos_muestra, datos_eventos,porc_empr_UMD)
+}
+
+.EMPRESAS_UMD_YEAR <- function(YEAR, MARKET, datos_muestra="datos_muestra.txt", datos_eventos="datos_eventos.txt",porc_empr_UMD=0.3){
   #Lectura de los datos asociados a datos_muestra... (documento de texto)
   # datos_muestra<-read.table(datos_muestra, comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".",stringsAsFactors = F)
   datos_muestra<-read.table(datos_muestra, na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".",stringsAsFactors = F)
@@ -402,6 +447,9 @@ EMPRESAS_UMD <- function(fecha_evento, MARKET, datos_muestra="datos_muestra.txt"
   return(CRIT_INTERVAR)
 }   
 
+EMPRESAS_UMD_YEAR <- memoise(.EMPRESAS_UMD_YEAR)
+
+
 CALCULO_HML <- function(datos_muestra="datos_muestra.txt",datos_eventos="datos_eventos.txt",
                         fecha_evento, MARKET,inicio,fin,porc_empr_HML=0.3,porc_empr_SMB=0.5, 
                         directorio){
@@ -418,6 +466,7 @@ CALCULO_HML <- function(datos_muestra="datos_muestra.txt",datos_eventos="datos_e
   empresasSH <- EMP_HML[EMP_HML$HML=="HIGH","EMPRESA"]
   
   empresasSH <- empresasSH[empresasSH %in% EMP_SMB[EMP_SMB$SMB=="SMALL","EMPRESA"]]
+  
   #FOR para recorrer las EMPRESAs del conjunto S/H
   for (i in 1:length(empresasSH)){
     EMPRESA <- as.character(empresasSH[i])
@@ -453,6 +502,7 @@ CALCULO_HML <- function(datos_muestra="datos_muestra.txt",datos_eventos="datos_e
   empresasSL <- EMP_HML[EMP_HML$HML=="LOW","EMPRESA"]
   empresasSL <- empresasSL[empresasSL %in% EMP_SMB[EMP_SMB$SMB=="SMALL","EMPRESA"]]
   #FOR para recorrer las EMPRESAs del conjunto S/L
+
   for (i in 1:length(empresasSL)){
     EMPRESA <- as.character(empresasSL[i])
     datos <- rentabilidadEmpresa(EMPRESA, directorio = directorio)
@@ -913,13 +963,13 @@ CALCULO_SMB <- function(datos_muestra="datos_muestra.txt",datos_eventos="datos_e
                         fecha_evento, MARKET,inicio,fin,porc_empr_HML=0.3, porc_empr_RMW=0.3, 
                         porc_empr_CMA=0.3,porc_empr_SMB=0.5,directorio){
   matrizHML <- CALCULO_HML(datos_muestra=datos_muestra, datos_eventos=datos_eventos, fecha_evento=fecha_evento,
-                           MARKET=MARKET , inicio, fin,porc_empr_HML=porc_empr_HML,porc_empr_SMB=porc_empr_SMB,
+                           MARKET=MARKET , inicio, fin, porc_empr_HML=porc_empr_HML,porc_empr_SMB=porc_empr_SMB,
                            directorio=directorio)
   matrizRMW <- CALCULO_RMW(datos_muestra=datos_muestra, datos_eventos=datos_eventos, fecha_evento=fecha_evento,
-                           MARKET=MARKET , inicio, fin,porc_empr_RMW=porc_empr_RMW,porc_empr_SMB=porc_empr_SMB,
+                           MARKET=MARKET , inicio, fin, porc_empr_RMW=porc_empr_RMW,porc_empr_SMB=porc_empr_SMB,
                            directorio=directorio)
   matrizCMA <- CALCULO_CMA(datos_muestra=datos_muestra, datos_eventos=datos_eventos, fecha_evento=fecha_evento,
-                           MARKET=MARKET , inicio, fin,porc_empr_CMA=porc_empr_CMA,porc_empr_SMB=porc_empr_SMB,
+                           MARKET=MARKET , inicio, fin, porc_empr_CMA=porc_empr_CMA,porc_empr_SMB=porc_empr_SMB,
                            directorio=directorio)  
   
   matrizSMB <- cbind(matrizHML,matrizRMW[,-1],matrizCMA[,-1])
@@ -933,7 +983,6 @@ CALCULO_SMB <- function(datos_muestra="datos_muestra.txt",datos_eventos="datos_e
   return(matrizSMB)
   
 }
-
 
 CALCULO_MATRIZKPI <- function (MARKET, COMPANY, fecha_evento, inicio, fin, 
                                datos_muestra="datos_muestra.txt",
@@ -1175,14 +1224,17 @@ ESTIMACION_5F_EMPRESA <- function(fecha_evento,COMPANY,MARKET,
   
   #EMPRESA
   # datos_EMPRESA <- read.table(paste(directorio,'/',COMPANY,'.txt',sep=""), comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".")
-  datos_EMPRESA <- read.table(paste(directorio,'/',COMPANY,'.txt',sep=""), na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".")
+  datos_EMPRESA <- read.table(paste(directorio,'/',COMPANY,'.txt',sep=""), 
+                              na.strings=c("","#N/A","N/A","NULL","-","NA"),
+                              sep="\t",quote="",header=T,dec=".")
   colnames(datos_EMPRESA) <- c("Date","PX_LAST","PX_VOLUME")
   datos_EMPRESA$Date <- as.Date(datos_EMPRESA$Date, format="%d/%m/%Y")
+  
   #Establezco la fila donde esta el evento dentro del doc de la EMPRESA
   fila_evento <- which(datos_EMPRESA$Date == as.Date(fecha_evento,format="%d/%m/%Y"))
   #Establezco la fecha inicio y fin para pasarlo a la funcion que calcula MATRIZKPI
-  inicio <- as.Date(datos_EMPRESA$Date[fila_evento-margen_dias_previo],format= "%d/%m/%Y")
-  fin <- as.Date(datos_EMPRESA$Date[fila_evento + margen_dias_post],format= "%d/%m/%Y")
+  inicio <- datos_EMPRESA$Date[fila_evento-margen_dias_previo]
+  fin <- datos_EMPRESA$Date[fila_evento + margen_dias_post]
   
   #Calculo de matrizKPI
   MATRIZKPI <- CALCULO_MATRIZKPI(fecha_evento=fecha_evento,
@@ -1197,6 +1249,7 @@ ESTIMACION_5F_EMPRESA <- function(fecha_evento,COMPANY,MARKET,
                                  porc_empr_SMB=porc_empr_SMB, porc_empr_HML=porc_empr_HML, porc_empr_RMW=porc_empr_RMW,
                                  porc_empr_CMA=porc_empr_CMA, directorio = directorio,
                                  FD=FD)
+  
   #AJUSTE
   fila_evento_matriz <- which(MATRIZKPI$Date == as.Date(fecha_evento,format="%d/%m/%Y"))
   MATRIZ_ESTIMACION <- data.frame(Day = paste("Day", -LIE:LVE, sep=""),
@@ -1354,13 +1407,17 @@ ACUMULATIVA_5F <- function(margen_dias_previo= 225,margen_dias_post= 50,
   analisis_array <- analisis_array[!is.na(analisis_array$Fecha_LVE), ]
   MATRIZ_RESULTADOS <- data.frame(Day = paste("Day", -LIE:LVE, sep=""))
   b=2
+  
   for(i in 1:nrow(analisis_array)){
     # i es el contador de filas del documento que contiene los datos de la muestra a analizar
     # b es el contador de columnas de la matriz resultado
+    
+    print(paste("EVENTO", i))
+    
     EMPRESA <- as.character(analisis_array[i,"COMPANY"])
     mercado <- as.character(analisis_array[i,"MARKET"])
-    fecha_evento <- as.character(analisis_array[i,"Fecha_evento_def"])
-    MATRIZ_RESULTADOS[,b] <- ESTIMACION_5F_EMPRESA(fecha_evento=as.Date(as.Date(as.character(fecha_evento))), 
+    fecha_evento <- analisis_array[i,"Fecha_evento_def"]
+    MATRIZ_RESULTADOS[,b] <- ESTIMACION_5F_EMPRESA(fecha_evento=fecha_evento, 
                                                    COMPANY=EMPRESA, 
                                                    MARKET=mercado,
                                                    datos_muestra = datos_muestra,
@@ -1378,6 +1435,7 @@ ACUMULATIVA_5F <- function(margen_dias_previo= 225,margen_dias_post= 50,
                                                    FD=FD)[,"ARIT"]
     b=b+1
   }
+  
   colnames(MATRIZ_RESULTADOS) <- c("Day",paste(analisis_array[,1], analisis_array[,2],sep="||"))
   return(MATRIZ_RESULTADOS)
 }
@@ -1612,7 +1670,6 @@ est_corrado89 <-function(data, col=NULL) {
   if(is.null(col)) col <- ncol(data)
   
   Corrado <- as_tibble(data)[,2:col]
-  print(str(Corrado))
   
   rs <- rank(Corrado[, 1], na.last = "keep") + (nrow(Corrado) - rank(-Corrado[, 1], na.last = "keep") - rank(Corrado[, 1], na.last = "keep") + 1)/2
   resCorrado <- matrix(rs)
@@ -1643,19 +1700,16 @@ est_corrado <-function(data, col) {
     for (i in 2:ncol(Corrado)) {
       rs <- rank(Corrado[, i], na.last = "keep", ties.method = "average")
       U <- rs/(1+length(na.omit(rs)))
-      resCorrado <- cbind(resCorrado, U)
+      resCorrado <- bind_cols(resCorrado, U)
     }
   }
   
   resCorradoEXT <<- resCorrado
   
-  t3den <- sqrt(mean(pull(resCorrado[,1])-0.5,na.rm=T))
-  t3num <- pull(resCorrado[,1])-0.5
-  
-  if(ncol(resCorrado)>1) {
-    t3den <- sqrt(mean((rowSums(resCorrado-0.5)/sqrt(rowSums(!is.na(resCorrado))))^2,na.rm=T))
-    t3num <- rowSums(resCorrado-0.5,na.rm=T)/(sqrt(rowSums(!is.na(resCorrado))))
-  }
+  t3den <- sqrt(mean((rowSums(resCorrado-0.5)/sqrt(rowSums(!is.na(resCorrado))))^2,na.rm=T))
+  t3num <- rowSums(resCorrado-0.5,na.rm=T)/(sqrt(rowSums(!is.na(resCorrado))))
+
+  exportedList <<- list(t3num, t3den)
   return(list(t3num, t3den))
 }
 

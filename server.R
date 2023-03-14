@@ -406,7 +406,7 @@ server <- function(input, output, session) {
       # ACUM_5F_ext <<- ACUM_5F
       # vol5_ext <<- vol5
     }
-    txt <- paste(txt, 'You may now download the data from ',input$Function,' for ',basename(myInputDir1),'<\n>', sep="")
+    txt <- paste(txt, 'Once the calculations are done, you will be able to download the data from ',input$Function,' for ',basename(myInputDir1),'<\n>', sep="")
     console(txt)
   })
   
@@ -871,6 +871,7 @@ server <- function(input, output, session) {
       ACUM_5F <- as.data.frame(ACUM_5F)
       ACUM_5F[ACUM_5F == 0] <- NA
       ACUM_5F <- ACUM_5F[,colSums(is.na(ACUM_5F))<nrow(ACUM_5F)]
+      print("Acum5F done")
       vol5 <- ACUM_5F
       vol5[,2:ncol(vol5)] <- abs(vol5[,2:ncol(vol5)])
       
