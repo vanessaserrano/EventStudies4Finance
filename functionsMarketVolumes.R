@@ -62,8 +62,8 @@ ANALISIS_DOC_VOLUMEN <- function(datos,LSPE1=95,LSPE2=95,format="%d/%m/%Y",direc
   empresa <- datos[i,1]
   datos_empresa <- read.table(paste(directorio,'/',as.character(empresa),'.txt',sep = ''), comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".")
   colnames(datos_empresa) <- c("Date","PX_LAST","PX_VOLUME")
-  datos_empresa <- datos_empresa[!is.na(datos_empresa[,"PX_LAST"]),]
-  datos_empresa <- datos_empresa[!is.na(datos_empresa[,"PX_VOLUME"]),]
+  # datos_empresa <- datos_empresa[!is.na(datos_empresa[,"PX_LAST"]),]
+  # datos_empresa <- datos_empresa[!is.na(datos_empresa[,"PX_VOLUME"]),]
 
   datos_empresa<- datos_empresa[!format(datos_empresa[,"Date"],format='%d/%m')==format(as.Date("01/01/2000",format='%d/%m/%Y'),'%d/%m'),]
   datos_empresa<- datos_empresa[!format(datos_empresa[,"Date"],format='%d/%m')==format(as.Date("25/12/2000",format='%d/%m/%Y'),'%d/%m'),]
@@ -75,7 +75,7 @@ ANALISIS_DOC_VOLUMEN <- function(datos,LSPE1=95,LSPE2=95,format="%d/%m/%Y",direc
       datos_empresa <- read.table(paste(directorio,'/',as.character(empresa),'.txt',sep = ''), comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".")
       colnames(datos_empresa) <- c("Date","PX_LAST","PX_VOLUME")
       # datos_empresa <- datos_empresa[!is.na(datos_empresa[,"PX_LAST"]),]
-      datos_empresa <- datos_empresa[!is.na(datos_empresa[,"PX_VOLUME"]),]
+      # datos_empresa <- datos_empresa[!is.na(datos_empresa[,"PX_VOLUME"]),]
       datos_empresa<- datos_empresa[format(datos_empresa[,"Date"],format='%d/%m')!=format(as.Date("01/01/2000",format='%d/%m/%Y'),'%d/%m'),]
       datos_empresa<- datos_empresa[format(datos_empresa[,"Date"],format='%d/%m')!=format(as.Date("25/12/2000",format='%d/%m/%Y'),'%d/%m'),]
       datos_empresa$Date <- as.Date(datos_empresa$Date,format='%d/%m/%Y')
@@ -90,8 +90,12 @@ ANALISIS_DOC_VOLUMEN <- function(datos,LSPE1=95,LSPE2=95,format="%d/%m/%Y",direc
     # }
 
     fecha_buscar <- max(datos_empresa$Date, na.rm=T)
-    if(length(datos_empresa$Date[datos_empresa$Date >= event_day])>0) {
-      fecha_buscar <- min(datos_empresa$Date[datos_empresa$Date >= event_day])
+    if(length(datos_empresa$Date[datos_empresa$Date >= event_day &
+                                 !is.na(datos_empresa$PX_LAST) &
+                                 !is.na(datos_empresa$PX_VOLUME)])>0) {
+      fecha_buscar <- min(datos_empresa$Date[datos_empresa$Date >= event_day &
+                                               !is.na(datos_empresa$PX_LAST) &
+                                               !is.na(datos_empresa$PX_VOLUME)])
     }
     
     datos$Fecha_evento_def[i]<-fecha_buscar
@@ -103,8 +107,13 @@ ANALISIS_DOC_VOLUMEN <- function(datos,LSPE1=95,LSPE2=95,format="%d/%m/%Y",direc
       # datos$ControlEvento[i]="ANULADA POR FALTA DE DATOS"
       datos$Fecha_LSPE2[i] <- datos_empresa[fila_evento_empresa + LSPE2,"Date"]
     } else {
-      datos$Fecha_LSPE2[i] <- datos_empresa[fila_evento_empresa + LSPE2,"Date"]
-      datos$Fecha_LSPE1[i] <- datos_empresa[fila_evento_empresa - LSPE1,"Date"]
+      datos_ventana <- datos_empresa[(fila_evento_empresa - LSPE1):(fila_evento_empresa + LSPE2),]
+      datos_ventana$valid <- !(is.na(datos_ventana$PX_LAST) | (is.na(datos_ventana$PX_VOLUME)))
+      
+      if(sum(datos_ventana$valid)/nrow(datos_ventana) >= .5) {
+        datos$Fecha_LSPE2[i] <- datos_empresa[fila_evento_empresa + LSPE2,"Date"]
+        datos$Fecha_LSPE1[i] <- datos_empresa[fila_evento_empresa - LSPE1,"Date"]        
+      }
     }
   }  # Final del primer FOR para establecer fecha_evento_def LSV y LIE
   
@@ -112,27 +121,29 @@ ANALISIS_DOC_VOLUMEN <- function(datos,LSPE1=95,LSPE2=95,format="%d/%m/%Y",direc
          paste("Fecha del evento de ",datos$COMPANY,"modificada, pasa de ",
                                   datos$DATE," a ",datos$Fecha_evento_def),
          "--")
-  
+    
   for(i in 1:nrow(datos)){
     if(is.na(datos$Fecha_LSPE1[i]) ||
-        is.na(datos$Fecha_LSPE2[i])){
-      datos$ControlEvento[i]="ANULADA POR FALTA DE DATOS"
+        is.na(datos$Fecha_LSPE2[i]) ||
+        datos$Fecha_evento_def[i] - datos$DATE[i] > 5) {
+      datos$ControlEvento[i] <- "ANULADA POR FALTA DE DATOS"
     } else {
       if(i>1 && datos[i,1]==datos[i-1,1] && 
          (is.na(datos$Fecha_LSPE1[i]) ||
           is.na(datos$Fecha_evento_def[i-1]) ||
           (datos$Fecha_LSPE1[i] - datos$Fecha_evento_def[i-1]) <= 0)){
           #La empresa es la misma que la fila anterior
-          datos$ControlEvento[i]="ERRONEO"
+          datos$ControlEvento[i] <- "ERRONEO"
       }
       if(i<nrow(datos) && datos[i,1]==datos[i+1,1] && 
          (is.na(datos$Fecha_LSPE2[i]) ||
           is.na(datos$Fecha_evento_def[i+1]) ||
           (datos$Fecha_evento_def[i+1] - datos$Fecha_LSPE2[i]) <= 0)){
         #La empresa es la misma que la fila anterior
-        datos$ControlEvento[i]="ERRONEO"
+        datos$ControlEvento[i] <- "ERRONEO"
       }
     }
+    
   }#final del segundo FOR para determinar finalmente qué eventos son analizables
   
   return(datos)
@@ -148,14 +159,19 @@ ANALISIS_DOC_VOLUMEN <- function(datos,LSPE1=95,LSPE2=95,format="%d/%m/%Y",direc
 #LSPE2: Limite superior ventana estimacion 2 (periodo previo al evento)
 #LVE: Limite ventana evento
 
-VOLUMEN_MEDIA <- function(datos, fecha_evento, LSPE1 = 95,LIPE1=21, LSPE2=95,LIPE2=21,LVE=10, format = '%d/%m/%Y'){
+VOLUMEN_MEDIA <- function(datos, fecha_evento, LSPE1 = 95,LIPE1=21, LSPE2=95,
+                          LIPE2=21,LVE=10, format = '%d/%m/%Y'){
   colnames(datos) <- c("Date","PX_LAST","PX_VOLUME")
+  datos$PX_VOLUME[is.na(datos$PX_LAST)] <- NA
+  
   datos$Date <- as.Date(datos$Date, format = format)
   event_day <- as.Date(fecha_evento, format = format)
   event_day_data <- which(datos$Date == event_day)
-  window_mean1 <- mean(datos$PX_VOLUME[(event_day_data - LSPE1):(event_day_data - LIPE1)], na.rm = TRUE)
-  window_mean2<- mean(datos$PX_VOLUME[(event_day_data + LIPE2):(event_day_data + LSPE2)], na.rm = TRUE)
-  window_mean<-(window_mean1+window_mean2)/2
+  window_mean1 <- mean(datos$PX_VOLUME[(event_day_data - LSPE1):(event_day_data - LIPE1)],
+                       na.rm = TRUE)
+  window_mean2<- mean(datos$PX_VOLUME[(event_day_data + LIPE2):(event_day_data + LSPE2)],
+                      na.rm = TRUE)
+  window_mean<-mean(c(window_mean1,window_mean2),na.rm=T)
 
   # Volum <- ifelse(is.na(window_mean),NA,datos$PX_VOLUME[(event_day_data - LSPE1):(event_day_data + LSPE2)] / window_mean)
   if(is.na(window_mean)){
@@ -188,7 +204,8 @@ ACUMULATIVA_VOLUMEN_MEDIA <- function(datos,LSPE1 = 95,LIPE1=21, LSPE2=95,LIPE2=
   #analisis_array<-read.table(analysis_array,comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",
   #                          header=T,dec=".")
   
-  analisis_array <- ANALISIS_DOC_VOLUMEN(datos,LSPE1=LSPE1,LSPE2=LSPE2,format=format,directorio = directorio)
+  analisis_array <- ANALISIS_DOC_VOLUMEN(datos,LSPE1=LSPE1,LSPE2=LSPE2,
+                                         format=format,directorio = directorio)
   #Saco de la tabla los eventos que no sean analizables por posibles efectos confundentes
   analisis_array <- analisis_array[which(analisis_array$ControlEvento=="OK"),]
   
@@ -201,13 +218,17 @@ ACUMULATIVA_VOLUMEN_MEDIA <- function(datos,LSPE1 = 95,LIPE1=21, LSPE2=95,LIPE2=
   b<-2
   
   for(i in 1:nrow(analisis_array)){
-    tabla_resultados[,b]<-VOLUMEN_MEDIA(datos=read.table(paste(directorio,'/',as.character(analisis_array[i,1]),'.txt',sep=""), comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec="."),
-                                        fecha_evento=analisis_array[i,"Fecha_evento_def"],
-                                        LSPE1 = LSPE1,LIPE1=LIPE1, LSPE2=LSPE2,LIPE2=LIPE2,LVE=LVE)[,2]
+    tabla_resultados[,b]<-VOLUMEN_MEDIA(
+      datos=read.table(paste(directorio,'/',as.character(analisis_array[i,1]),'.txt',sep=""),
+                       comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),
+                       sep="\t",quote="",header=T,dec="."),
+      fecha_evento=analisis_array[i,"Fecha_evento_def"],
+      LSPE1 = LSPE1,LIPE1=LIPE1, LSPE2=LSPE2,LIPE2=LIPE2,LVE=LVE)[,2]
     b<-b+1
   }
   
-  colnames(tabla_resultados) <- c("Day", paste(analisis_array[,1], as.character(analisis_array[,"Fecha_evento_def"]), sep="_"))
+  colnames(tabla_resultados) <- c("Day", paste(analisis_array[,1],
+                                               as.character(analisis_array[,"Fecha_evento_def"]), sep="_"))
   return(tabla_resultados)
   
 }

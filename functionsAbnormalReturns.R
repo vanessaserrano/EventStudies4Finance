@@ -4,6 +4,7 @@
   datos <-read.table(paste(directorio,'/',nombreEmpresa,'.txt',sep=''), na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".")
   colnames(datos)<-c("Date","PX_LAST","PX_VOLUME")
   datos$Date <- as.Date(datos$Date, format="%d/%m/%Y")
+  datos$PX_LAST[is.na(datos$PX_VOLUME)] <- NA
   datos$Rentabilidad[2:nrow(datos)] <- log(datos$PX_LAST[2:nrow(datos)] / datos$PX_LAST[1:(nrow(datos)-1)])  
   colnames(datos)<-c("Date","PX_LAST","PX_VOLUME",nombreEmpresa)
   return(datos)
@@ -148,7 +149,7 @@ comprobacionesFactores <- function (documentoEventos,
   # datos_empresa <- read.table(paste(directorio,'/',as.character(empresa),'.txt',sep = ''), comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".")
   datos_empresa <- read.table(paste(directorio,'/',as.character(empresa),'.txt',sep = ''), na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".")
   colnames(datos_empresa) <- c("Date","PX_LAST","PX_VOLUME")
-  datos_empresa <- datos_empresa[!is.na(datos_empresa[,"PX_LAST"]),]
+  # datos_empresa <- datos_empresa[!is.na(datos_empresa[,"PX_LAST"]),]
   datos_empresa <- datos_empresa[format(datos_empresa[,"Date"],format='%d/%m')!="01/01",]
   datos_empresa <- datos_empresa[format(datos_empresa[,"Date"],format='%d/%m')!="25/12",]
   datos_empresa$Date <- as.Date(datos_empresa$Date,format='%d/%m/%Y')
@@ -160,7 +161,7 @@ comprobacionesFactores <- function (documentoEventos,
       # datos_empresa <- read.table(paste(directorio,'/',as.character(empresa),'.txt',sep = ''), comment.char="",na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".")
       datos_empresa <- read.table(paste(directorio,'/',as.character(empresa),'.txt',sep = ''), na.strings=c("","#N/A","N/A","NULL","-","NA"),sep="\t",quote="",header=T,dec=".")
       colnames(datos_empresa) <- c("Date","PX_LAST","PX_VOLUME")
-      datos_empresa <- datos_empresa[!is.na(datos_empresa[,"PX_LAST"]),]
+      # datos_empresa <- datos_empresa[!is.na(datos_empresa[,"PX_LAST"]),]
       datos_empresa <- datos_empresa[format(datos_empresa[,"Date"],format='%d/%m')!="01/01",]
       datos_empresa <- datos_empresa[format(datos_empresa[,"Date"],format='%d/%m')!="25/12",]
       datos_empresa$Date <- as.Date(datos_empresa$Date,format='%d/%m/%Y')
@@ -172,7 +173,9 @@ comprobacionesFactores <- function (documentoEventos,
     event_day = as.Date(datos[i,2],format='%d/%m/%Y')
     
     fecha_buscar <- max(datos_empresa$Date, na.rm=T)
-    datosCTyMERC <- datos_empresa$Date[datos_empresa$Date %in% df_aux$Date]
+    datosCTyMERC <- datos_empresa$Date[datos_empresa$Date %in% df_aux$Date &
+                                         !is.na(datos_empresa$PX_LAST) &
+                                         !is.na(datos_empresa$PX_VOLUME)]
     datosCTyMERC <- datosCTyMERC[datosCTyMERC >= event_day]
     
     if(length(datosCTyMERC)>0) {
@@ -187,8 +190,13 @@ comprobacionesFactores <- function (documentoEventos,
       # datos$ControlEvento[i]="ANULADA POR FALTA DE DATOS"
       datos$Fecha_LVE[i] <- datos_empresa[fila_evento_empresa + LVE,"Date"]
     } else { #Asignamos las fechas de LVE y LIE en base a fechas de cotización de la matriz 
-      datos$Fecha_LVE[i] <- datos_empresa[fila_evento_empresa + LVE,"Date"]
-      datos$Fecha_LIE[i] <- datos_empresa[fila_evento_empresa - LIE,"Date"]
+      datos_ventana <- datos_empresa[(fila_evento_empresa - LIE):(fila_evento_empresa + LVE),]
+      datos_ventana$valid <- !(is.na(datos_ventana$PX_LAST) | (is.na(datos_ventana$PX_VOLUME)))
+      
+      if(sum(datos_ventana$valid)/nrow(datos_ventana) >= .5) {
+        datos$Fecha_LVE[i] <- datos_empresa[fila_evento_empresa + LVE,"Date"]
+        datos$Fecha_LIE[i] <- datos_empresa[fila_evento_empresa - LIE,"Date"]      
+      }
     }
   } #Final del primer FOR para establecer fecha_evento_def LVE y LIE
   
@@ -199,7 +207,8 @@ comprobacionesFactores <- function (documentoEventos,
   
   for(i in 1:nrow(datos)){
     if(is.na(datos$Fecha_LIE[i]) ||
-       is.na(datos$Fecha_LVE[i])){
+       is.na(datos$Fecha_LVE[i])||
+       datos$Fecha_evento_def[i] - datos$DATE[i] > 5){
       datos$ControlEvento[i]="ANULADA POR FALTA DE DATOS"
     } else {
       if(i>1 && datos[i,1]==datos[i-1,1] && 
