@@ -1033,7 +1033,8 @@ CALCULO_MATRIZKPI <- function (MARKET, COMPANY, fecha_evento, inicio, fin,
   EMP <- rentabilidadEmpresa(COMPANY,directorio=directorio)
   EMP$Date <- as.Date(EMP$Date,format="%d/%m/%Y")
   colnames(EMP)<-c("Date","PX_LAST","PX_VOLUME","RE")
-  MATRIZKPI$RE <- merge(x=MATRIZKPI["Date"], y=EMP[,c("Date","RE")], by="Date",all.x=TRUE)[,2]
+  MATRIZKPI$RE <- merge(x=MATRIZKPI["Date"], y=EMP[,c("Date","RE")], 
+                        by="Date",all.x=TRUE)[,2]
   
   if (is.null(FD)){
     #RM-Rf
@@ -1126,7 +1127,7 @@ ESTIMACION_3F_EMPRESA <- function(fecha_evento,COMPANY,MARKET,
   
   #Cálculo coeficientes de ajuste
   ajuste <- lm(RitRf ~ 0 + RMRF + SMB + HML , 
-               data = MATRIZ_ESTIMACION[1:as.numeric(dim(MATRIZ_ESTIMACION)[1]-(LVE*2)),])
+               data = MATRIZ_ESTIMACION[1:as.numeric(dim(MATRIZ_ESTIMACION)[1]-(LVE*2 + 1)),])
   
   #Aplico los coeficientes del ajuste para la estimación...
   #RirRfEstimado
@@ -1202,7 +1203,7 @@ ESTIMACION_4F_EMPRESA <- function(fecha_evento,COMPANY,MARKET,
   
   #Cálculo coeficientes de ajuste
   ajuste <- lm(RitRf ~ 0 + RMRF + SMB + HML + UMD , 
-               data = MATRIZ_ESTIMACION[1:as.numeric(dim(MATRIZ_ESTIMACION)[1]-(LVE*2)),])
+               data = MATRIZ_ESTIMACION[1:as.numeric(dim(MATRIZ_ESTIMACION)[1]-(LVE*2 + 1)),])
   
   #Aplico los coeficientes del ajuste para la estimación...
   #RirRfEstimado
@@ -1278,7 +1279,7 @@ ESTIMACION_5F_EMPRESA <- function(fecha_evento,COMPANY,MARKET,
   
   #Cálculo coeficientes de 
   ajuste <- lm(RitRf ~ 0 + RMRF + SMB + HML + RMW + CMA , 
-               data = MATRIZ_ESTIMACION[1:as.numeric(dim(MATRIZ_ESTIMACION)[1]-(LVE*2)),])
+               data = MATRIZ_ESTIMACION[1:as.numeric(dim(MATRIZ_ESTIMACION)[1]-(LVE*2 + 1)),])
   #Aplico los coeficientes del ajuste para la estimación...
   #RirRfEstimado
   MATRIZ_ESTIMACION$RitRfEstim <- predict(ajuste,MATRIZ_ESTIMACION)
