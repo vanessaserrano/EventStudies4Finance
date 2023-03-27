@@ -1716,7 +1716,8 @@ est_corrado <-function(data, col) {
   
   resCorradoEXT <<- resCorrado
   
-  t3den <- sqrt(mean((rowSums(resCorrado-0.5)/sqrt(rowSums(!is.na(resCorrado))))^2,na.rm=T))
+  t3den <- sqrt(mean((rowSums(resCorrado-0.5,na.rm = T)/
+                        sqrt(rowSums(!is.na(resCorrado))))^2,na.rm=T))
   t3num <- rowSums(resCorrado-0.5,na.rm=T)/(sqrt(rowSums(!is.na(resCorrado))))
 
   exportedList <<- list(t3num, t3den)

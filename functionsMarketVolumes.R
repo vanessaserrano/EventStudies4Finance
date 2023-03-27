@@ -227,8 +227,7 @@ ACUMULATIVA_VOLUMEN_MEDIA <- function(datos,LSPE1 = 95,LIPE1=21, LSPE2=95,LIPE2=
     b<-b+1
   }
   
-  colnames(tabla_resultados) <- c("Day", paste(analisis_array[,1],
-                                               as.character(analisis_array[,"Fecha_evento_def"]), sep="_"))
+  colnames(tabla_resultados) <- c("Day", paste(analisis_array[,1], analisis_array[,2], sep="||"))
   return(tabla_resultados)
   
 }
@@ -382,7 +381,7 @@ ACUMULATIVA_RENTABILIDAD_MERCADO <- function(analysis_array,LIE=170,LVE=10, vent
     
   }
   
-  colnames(tabla_resultados) <- c("Day", paste(analisis_array[,1], analisis_array[,2],analisis_array[,3],sep="||"))
+  colnames(tabla_resultados) <- c("Day", paste(analisis_array[,1], analisis_array[,2], sep="||"))
   return(tabla_resultados)
 }
 
